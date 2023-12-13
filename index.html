@@ -49,12 +49,28 @@
             generateLinks();
         };
 
+        document.getElementById("miCuadroDeTexto").addEventListener("input", function () {
+            filterLinks(this.value.toLowerCase());
+        });
+
+        function filterLinks(filterText) {
+            const dynamicLinks = document.querySelectorAll('.dynamic-link');
+            dynamicLinks.forEach(link => {
+                if (link.textContent.toLowerCase().includes(filterText)) {
+                    link.style.display = ''; // Show the link
+                } else {
+                    link.style.display = 'none'; // Hide the link
+                }
+            });
+        }
+
         function generateLinks() {
             const container = document.getElementById("link-container");
             links.forEach(link => {
                 const a = document.createElement("a");
                 a.href = link.href;
                 a.innerHTML = `<i class="${link.icon}"></i>${link.text}`;
+                a.classList.add('dynamic-link');
                 container.appendChild(a);
             });
         }
