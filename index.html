@@ -1,29 +1,75 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Página de Inicio Personalizada</title>
+    <title>netnook.app</title>
+    <meta charset="UTF-8">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        a {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid black;
+            text-decoration: none;
+            color: black;
+            background-color: lightgray;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        a:hover {
+            background-color: gray;
+            color: white;
+        }
+
+        .fa {
+            display: block;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
 
-<input type="text" id="miCuadroDeTexto" />
+    <input type="text" id="miCuadroDeTexto" />
+    <div id="link-container"></div> <!-- Container for the links -->
 
-<script>
-window.onload = function() {
-    document.getElementById("miCuadroDeTexto").focus();
-};
+    <script>
+        // Link data structure
+        const links = [
+            { href: "https://github.com", icon: "fa fa-brands fa-github", text: "github" },
+            { href: "https://github.com/4itor", icon: "fa fa-user", text: "profile" },
+            { href: "https://google.com", icon: "fa fa-search", text: "google" }
+        ];
 
-document.getElementById("miCuadroDeTexto").addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        miFuncionPersonalizada();
-    }
-});
+        window.onload = function () {
+            document.getElementById("miCuadroDeTexto").focus();
+            generateLinks();
+        };
 
-function miFuncionPersonalizada() {
-    // Tu código personalizado va aquí
-    alert("Enter presionado!");
-}
-</script>
+        function generateLinks() {
+            const container = document.getElementById("link-container");
+            links.forEach(link => {
+                const a = document.createElement("a");
+                a.href = link.href;
+                a.innerHTML = `<i class="${link.icon}"></i>${link.text}`;
+                container.appendChild(a);
+            });
+        }
+
+        document.getElementById("miCuadroDeTexto").addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                miFuncionPersonalizada();
+            }
+        });
+
+        function miFuncionPersonalizada() {
+            // Tu código personalizado va aquí
+            alert("Enter presionado!");
+        }
+    </script>
 
 </body>
 </html>
