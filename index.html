@@ -12,12 +12,32 @@
             /* Texto claro */
         }
 
+        .prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 5px;
+            background-color: #333333;
+            /* Fondo del filtro */
+            color: #e0e0e0;
+            /* Texto del filtro */
+            font-family: monospace;
+            /* Fuente monoespaciada */
+            text-align: center;
+            /* Alineación centrada */
+            z-index: 1;
+            /* Asegura que esté por encima de los iconos */
+        }
+
         .container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
+            margin-top: 25px;
             /* Centra los iconos si deseas */
         }
+
 
         .icono {
             margin: 10px;
@@ -38,12 +58,21 @@
             /* Espacio entre el ícono y el texto */
         }
 
+        .icono.discarded {
+            color: #333333 !important;
+            /* Oculta los iconos que no coinciden con el filtro */
+        }
+
         .icono:hover {
             background-color: #333333;
             /* Color de fondo al pasar el mouse */
         }
 
         /* Asegura que los enlaces visitados no se diferencien */
+        .icono.discarded::visited {
+            color: #333333 !important;
+        }
+
         .icono:visited {
             color: #e0e0e0;
         }
@@ -52,7 +81,7 @@
 </head>
 
 <body>
-    <div id="filtro"></div>
+    <div id="filtro" class="prompt"></div>
     <div id="iconos" class="container">
         <a href="https://mail.google.com/" class="icono" data-nombre="Gmail"><i class="fas fa-envelope"></i> Gmail</a>
         <a href="https://meet.google.com/" class="icono" data-nombre="Meet"><i class="fas fa-video"></i> Meet</a>
@@ -92,12 +121,18 @@
         <a href="https://chat.openai.com/" class="icono" data-nombre="ChatGPT"><i class="fas fa-brain"></i> ChatGPT</a>
         <a href="https://discord.com/app" class="icono" data-nombre="Discord"><i class="fab fa-discord"></i> Discord</a>
         <a href="https://app.plex.tv/desktop/#!/" class="icono" data-nombre="Plex"><i class="fas fa-film"></i> Plex</a>
-        <a href="https://raddio.app/" class="icono" data-nombre="raddio.app"><i class="fas fa-headphones"></i> raddio.app</a>
-        <a href="https://radio.garden/" class="icono" data-nombre="Radio Garden"><i class="fas fa-globe-europe"></i> Radio Garden</a>
-        <a href="https://www.radio-browser.info/search?page=1&order=clickcount&reverse=true&hidebroken=true&name=lofi" class="icono" data-nombre="Radio Browser"><i class="fas fa-broadcast-tower"></i> Radio Browser</a>
-        <a href="https://coderadio.freecodecamp.org/" class="icono" data-nombre="Code Radio"><i class="fas fa-code"></i> Code Radio</a>
-        <a href="https://open.spotify.com/playlist/1plJAm2h7qXQtxkSl82DDz" class="icono" data-nombre="Monkey Radio"><i class="fab fa-spotify"></i> Monkey Radio</a>
-        <a href="https://www.youtube.com/watch?v=jfKfPfyJRdk" class="icono" data-nombre="lofi hip hop radio"><i class="fab fa-youtube"></i> lofi hip hop radio</a>
+        <a href="https://raddio.app/" class="icono" data-nombre="raddio.app"><i class="fas fa-headphones"></i>
+            raddio.app</a>
+        <a href="https://radio.garden/" class="icono" data-nombre="Radio Garden"><i class="fas fa-globe-europe"></i>
+            Radio Garden</a>
+        <a href="https://www.radio-browser.info/search?page=1&order=clickcount&reverse=true&hidebroken=true&name=lofi"
+            class="icono" data-nombre="Radio Browser"><i class="fas fa-broadcast-tower"></i> Radio Browser</a>
+        <a href="https://coderadio.freecodecamp.org/" class="icono" data-nombre="Code Radio"><i class="fas fa-code"></i>
+            Code Radio</a>
+        <a href="https://open.spotify.com/playlist/1plJAm2h7qXQtxkSl82DDz" class="icono" data-nombre="Monkey Radio"><i
+                class="fab fa-spotify"></i> Monkey Radio</a>
+        <a href="https://www.youtube.com/watch?v=jfKfPfyJRdk" class="icono" data-nombre="lofi hip hop radio"><i
+                class="fab fa-youtube"></i> lofi hip hop radio</a>
     </div>
 
 
@@ -107,20 +142,52 @@
         const iconos = document.querySelectorAll('.icono');
         const filtroDisplay = document.getElementById('filtro');
 
+        // Inicializa destacando el primer icono y mostrando el filtro
+        filtroDisplay.textContent = '';
+        destacarSeleccionado();
+
         function actualizarFiltro() {
+            filtroDisplay.textContent = filtroTexto;
+
+            if (filtroTexto === '') {
+                filtroDisplay.textContent = '';
+                iconos.forEach((icono) => {
+                    if (icono.classList.contains('discarded')) {
+                        icono.classList.remove('discarded');
+                    }
+                });
+                seleccionado = 0;
+                destacarSeleccionado();
+                return;
+            }
+            const regex = crearRegexDeFiltro(filtroTexto.toLowerCase());
+
             let primerVisible = null;
             iconos.forEach((icono, index) => {
                 const nombre = icono.dataset.nombre.toLowerCase();
-                if (nombre.includes(filtroTexto.toLowerCase())) {
-                    icono.style.display = '';
-                    if (primerVisible === null) primerVisible = index;
+                if (regex.test(nombre)) {
+                    if (icono.classList.contains('discarded')) {
+                        icono.classList.remove('discarded');
+                    }
+                    if (primerVisible === null) {
+                        primerVisible = index;
+                    }
                 } else {
-                    icono.style.display = 'none';
+                    if (!icono.classList.contains('discarded')) {
+                        icono.classList.add('discarded');
+                    }
                 }
             });
 
             seleccionado = primerVisible ?? 0;
             destacarSeleccionado();
+        }
+
+        // Función para convertir el filtro en una expresión regular
+        function crearRegexDeFiltro(filtro) {
+            const filtroLower = filtro.toLowerCase();
+            const regexString = filtroLower.split('').map(char => `.*${char}`).join('');
+            return new RegExp(regexString, 'i');
         }
 
         function destacarSeleccionado() {
@@ -150,12 +217,12 @@
             } else if (e.key === 'ArrowRight') {
                 do {
                     seleccionado = (seleccionado + 1) % iconos.length;
-                } while (iconos[seleccionado].style.display === 'none');
+                } while (iconos[seleccionado].classList.contains('discarded'));
                 destacarSeleccionado();
             } else if (e.key === 'ArrowLeft') {
                 do {
                     seleccionado = (seleccionado - 1 + iconos.length) % iconos.length;
-                } while (iconos[seleccionado].style.display === 'none');
+                } while (iconos[seleccionado].classList.contains('discarded'));
                 destacarSeleccionado();
             } else if (e.key === 'Enter') {
                 abrirEnlaceSeleccionado();
@@ -164,13 +231,8 @@
                 filtroTexto = '';
                 actualizarFiltro();
             }
-
-            filtroDisplay.textContent = `Filtro: ${filtroTexto}`;
         });
 
-        // Inicializa destacando el primer icono y mostrando el filtro
-        destacarSeleccionado();
-        filtroDisplay.textContent = 'Filtro:';
     </script>
 
 </body>
