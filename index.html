@@ -83,63 +83,47 @@
 
 <body>
     <div id="filtro" class="prompt"></div>
-    <div id="iconos" class="container">
-        <a href="https://mail.google.com/" class="icono" data-nombre="Gmail"><i class="fas fa-envelope"></i> Gmail</a>
-        <a href="https://meet.google.com/" class="icono" data-nombre="Meet"><i class="fas fa-video"></i> Meet</a>
-        <a href="https://chat.google.com/" class="icono" data-nombre="Google Chat"><i class="fas fa-comment-alt"></i>
-            Google Chat</a>
-        <a href="https://calendar.google.com" class="icono" data-nombre="Calendar"><i class="fas fa-calendar-alt"></i>
-            Calendar</a>
-        <a href="https://drive.google.com/drive/" class="icono" data-nombre="Drive"><i class="fab fa-google-drive"></i>
-            Drive</a>
-        <a href="https://maps.google.com" class="icono" data-nombre="Google Maps"><i class="fas fa-map-marker-alt"></i>
-            Google Maps</a>
-        <a href="https://github.com/" class="icono" data-nombre="Github"><i class="fab fa-github"></i> Github</a>
-        <a href="https://app.powerbi.com" class="icono" data-nombre="PowerBi"><i class="fas fa-briefcase"></i>
-            PowerBi</a>
-        <a href="https://vscode.dev/" class="icono" data-nombre="VS Code Online"><i class="fas fa-laptop-code"></i> VS
-            Code Online</a>
-        <a href="http://devdocs.io/" class="icono" data-nombre="Devdocs"><i class="fas fa-code"></i> Devdocs</a>
-        <a href="https://status.dev.azure.com/" class="icono" data-nombre="Azure DevOps Status"><i
-                class="fas fa-thermometer"></i> Azure DevOps Status</a>
-        <a href="https://translate.google.es/?hl=ca" class="icono" data-nombre="Google Translate"><i
-                class="fas fa-language"></i> Google Translate</a>
-        <a href="https://graphemica.com/" class="icono" data-nombre="Graphemica"><i class="fas fa-font"></i>
-            Graphemica</a>
-        <a href="https://meteo.cat" class="icono" data-nombre="MeteoCat"><i class="fas fa-cloud-moon-rain"></i>
-            MeteoCat</a>
-        <a href="https://www.eltiempo.es/en-provincia-barcelona" class="icono" data-nombre="El Tiempo"><i
-                class="fas fa-cloud-sun-rain"></i> El Tiempo</a>
-        <a href="https://www.wordreference.com/es/" class="icono" data-nombre="WordReference"><i
-                class="fas fa-globe"></i> WordReference</a>
-        <a href="https://monkeytype.com/" class="icono" data-nombre="MonkeyType"><i class="fas fa-backspace"></i>
-            MonkeyType</a>
-        <a href="https://vial.rocks/" class="icono" data-nombre="Vial"><i class="fas fa-vial"></i> Vial</a>
-        <a href="https://remap-keys.app/" class="icono" data-nombre="RE-Map"><i class="fas fa-map"></i> RE-Map</a>
-        <a href="https://amazon.es/" class="icono" data-nombre="Amazon"><i class="fab fa-amazon"></i> Amazon</a>
-        <a href="https://es.aliexpress.com/" class="icono" data-nombre="AliExpress"><i class="fab fa-alipay"></i>
-            AliExpress</a>
-        <a href="https://chat.openai.com/" class="icono" data-nombre="ChatGPT"><i class="fas fa-brain"></i> ChatGPT</a>
-        <a href="https://discord.com/app" class="icono" data-nombre="Discord"><i class="fab fa-discord"></i> Discord</a>
-        <a href="https://app.plex.tv/desktop/#!/" class="icono" data-nombre="Plex"><i class="fas fa-film"></i> Plex</a>
-        <a href="https://raddio.app/" class="icono" data-nombre="raddio.app"><i class="fas fa-headphones"></i>
-            raddio.app</a>
-        <a href="https://radio.garden/" class="icono" data-nombre="Radio Garden"><i class="fas fa-globe-europe"></i>
-            Radio Garden</a>
-        <a href="https://www.radio-browser.info/search?page=1&order=clickcount&reverse=true&hidebroken=true&name=lofi"
-            class="icono" data-nombre="Radio Browser"><i class="fas fa-broadcast-tower"></i> Radio Browser</a>
-        <a href="https://coderadio.freecodecamp.org/" class="icono" data-nombre="Code Radio"><i class="fas fa-code"></i>
-            Code Radio</a>
-        <a href="https://open.spotify.com/playlist/1plJAm2h7qXQtxkSl82DDz" class="icono" data-nombre="Monkey Radio"><i
-                class="fab fa-spotify"></i> Monkey Radio</a>
-        <a href="https://www.youtube.com/watch?v=jfKfPfyJRdk" class="icono" data-nombre="lofi hip hop radio"><i
-                class="fab fa-youtube"></i> lofi hip hop radio</a>
-    </div>
-
+    <div id="icons" class="container"></div>
 
     <script>
-        let seleccionado = 0;
-        let filtroTexto = '';
+        // Definicion de Iconos predeterminados
+        const initialCatalog = [
+            { "addr": "https://mail.google.com/", "name": "Gmail", "icon": "fas fa-envelope" },
+            { "addr": "https://meet.google.com/", "name": "Meet", "icon": "fas fa-video" },
+            { "addr": "https://chat.google.com/", "name": "Google Chat", "icon": "fas fa-comment-alt" },
+            { "addr": "https://calendar.google.com", "name": "Calendar", "icon": "fas fa-calendar-alt" },
+            { "addr": "https://drive.google.com/drive/", "name": "Drive", "icon": "fab fa-google-drive" },
+            { "addr": "https://maps.google.com", "name": "Google Maps", "icon": "fas fa-map-marker-alt" },
+            { "addr": "https://github.com/", "name": "Github", "icon": "fab fa-github" },
+            { "addr": "https://app.powerbi.com", "name": "PowerBi", "icon": "fas fa-briefcase" },
+            { "addr": "https://vscode.dev/", "name": "VS Code Online", "icon": "fas fa-laptop-code" },
+            { "addr": "http://devdocs.io/", "name": "Devdocs", "icon": "fas fa-code" },
+            { "addr": "https://status.dev.azure.com/", "name": "Azure DevOps Status", "icon": "fas fa-thermometer" },
+            { "addr": "https://translate.google.es/?hl=ca", "name": "Google Translate", "icon": "fas fa-language" },
+            { "addr": "https://graphemica.com/", "name": "Graphemica", "icon": "fas fa-font" },
+            { "addr": "https://meteo.cat", "name": "MeteoCat", "icon": "fas fa-cloud-moon-rain" },
+            { "addr": "https://www.eltiempo.es/en-provincia-barcelona", "name": "El Tiempo", "icon": "fas fa-cloud-sun-rain" },
+            { "addr": "https://www.wordreference.com/es/", "name": "WordReference", "icon": "fas fa-globe" },
+            { "addr": "https://monkeytype.com/", "name": "MonkeyType", "icon": "fas fa-backspace" },
+            { "addr": "https://vial.rocks/", "name": "Vial", "icon": "fas fa-vial" },
+            { "addr": "https://remap-keys.app/", "name": "RE-Map", "icon": "fas fa-map" },
+            { "addr": "https://amazon.es/", "name": "Amazon", "icon": "fab fa-amazon" },
+            { "addr": "https://es.aliexpress.com/", "name": "AliExpress", "icon": "fab fa-alipay" },
+            { "addr": "https://chat.openai.com/", "name": "ChatGPT", "icon": "fas fa-brain" },
+            { "addr": "https://discord.com/app", "name": "Discord", "icon": "fab fa-discord" },
+            { "addr": "https://app.plex.tv/desktop/#!/", "name": "Plex", "icon": "fas fa-film" },
+            { "addr": "https://raddio.app/", "name": "raddio.app", "icon": "fas fa-headphones" },
+            { "addr": "https://radio.garden/", "name": "Radio Garden", "icon": "fas fa-globe-europe" },
+            { "addr": "https://www.radio-browser.info/search?page=1&order=clickcount&reverse=true&hidebroken=true&name=lofi", "name": "Radio Browser", "icon": "fas fa-broadcast-tower" },
+            { "addr": "https://coderadio.freecodecamp.org/", "name": "Code Radio", "icon": "fas fa-code" },
+            { "addr": "https://open.spotify.com/playlist/1plJAm2h7qXQtxkSl82DDz", "name": "Monkey Radio", "icon": "fab fa-spotify" },
+            { "addr": "https://www.youtube.com/watch?v=jfKfPfyJRdk", "name": "lofi hip hop radio", "icon": "fab fa-youtube" }
+        ];
+        addIcons(initialCatalog);
+
+        // Inicializar filtro y selector
+        let selectedPos = 0;
+        let filterText = '';
         const iconos = document.querySelectorAll('.icono');
         const filtroDisplay = document.getElementById('filtro');
 
@@ -147,21 +131,45 @@
         filtroDisplay.textContent = '';
         destacarSeleccionado();
 
-        function actualizarFiltro() {
-            filtroDisplay.textContent = filtroTexto;
+        function addIcons(catalog) {
+            const contenedor = document.getElementById('icons');
+            if (!contenedor) {
+                console.error('No se encontró el contenedor con id "contenedorIconos".');
+                return;
+            }
 
-            if (filtroTexto === '') {
+            catalog.forEach(catalogItem => {
+                const anchor = document.createElement('a');
+                anchor.className = 'icono';
+                anchor.href = catalogItem.addr;
+                anchor.dataset.nombre = catalogItem.name;
+
+                const icon = document.createElement('i');
+                icon.className = catalogItem.icon;
+
+                const text = document.createTextNode(`${catalogItem.name}`);
+
+                anchor.appendChild(icon);
+                anchor.appendChild(text);
+                contenedor.appendChild(anchor);
+            });
+        }
+
+        function actualizarFiltro() {
+            filtroDisplay.textContent = filterText;
+
+            if (filterText === '') {
                 filtroDisplay.textContent = '';
                 iconos.forEach((icono) => {
                     if (icono.classList.contains('discarded')) {
                         icono.classList.remove('discarded');
                     }
                 });
-                seleccionado = 0;
+                selectedPos = 0;
                 destacarSeleccionado();
                 return;
             }
-            const regex = crearRegexDeFiltro(filtroTexto.toLowerCase());
+            const regex = crearRegexDeFiltro(filterText.toLowerCase());
 
             let primerVisible = null;
             iconos.forEach((icono, index) => {
@@ -180,7 +188,7 @@
                 }
             });
 
-            seleccionado = primerVisible ?? 0;
+            selectedPos = primerVisible ?? 0;
             destacarSeleccionado();
         }
 
@@ -193,7 +201,7 @@
 
         function destacarSeleccionado() {
             iconos.forEach((icono, index) => {
-                if (index === seleccionado) {
+                if (index === selectedPos) {
                     icono.classList.add('seleccionado');
                     icono.focus(); // Asegura que el elemento seleccionado tenga el foco
                 } else {
@@ -203,39 +211,64 @@
         }
 
         function abrirEnlaceSeleccionado() {
-            const enlace = iconos[seleccionado].getAttribute('href');
+            const enlace = iconos[selectedPos].getAttribute('href');
             window.open(enlace, '_self'); // Abre el enlace en la ventana actual
+        }
+
+        function buscarEnGoogle(query, lucky = false) {
+            if (lucky) {
+                const url = `https://duckduckgo.com/?q=!ducky+${encodeURIComponent(query)}`;
+                window.open(url, '_self');
+            } else {
+                const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                window.open(url, '_blank');
+            }
+        }
+
+        function googleSearch(query) {
+            const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            window.open(url, '_blank');
+        }
+
+        function imFeelingLucky(query) {
+            const url = `https://duckduckgo.com/?q=!ducky+${encodeURIComponent(query)}`;
+            window.open(url, '_self');
         }
 
         document.addEventListener('keydown', (e) => {
             if (e.key.length === 1 && e.key.match(/[a-z0-9]/i)) {
-                filtroTexto += e.key;
+                filterText += e.key;
                 actualizarFiltro();
             } else if (e.key === 'Backspace') {
                 e.preventDefault();
-                filtroTexto = e.ctrlKey ? '' : filtroTexto.slice(0, -1);
+                filterText = e.ctrlKey ? '' : filterText.slice(0, -1);
                 actualizarFiltro();
             } else if (e.key === 'ArrowRight') {
                 do {
-                    seleccionado = (seleccionado + 1) % iconos.length;
-                } while (iconos[seleccionado].classList.contains('discarded'));
+                    selectedPos = (selectedPos + 1) % iconos.length;
+                } while (iconos[selectedPos].classList.contains('discarded'));
                 destacarSeleccionado();
             } else if (e.key === 'ArrowLeft') {
                 do {
-                    seleccionado = (seleccionado - 1 + iconos.length) % iconos.length;
-                } while (iconos[seleccionado].classList.contains('discarded'));
+                    selectedPos = (selectedPos - 1 + iconos.length) % iconos.length;
+                } while (iconos[selectedPos].classList.contains('discarded'));
                 destacarSeleccionado();
             } else if (e.key === 'Enter') {
                 abrirEnlaceSeleccionado();
             } else if (e.ctrlKey && (e.key === 'h' || e.key === 'H')) {
                 e.preventDefault();
-                filtroTexto = '';
+                filterText = '';
                 actualizarFiltro();
+            } else if (e.key === '?') {
+                e.preventDefault();
+                googleSearch(filterText);
+            } else if (e.key === '/') {
+                e.preventDefault();
+                imFeelingLucky(filterText);
             }
         });
 
     </script>
-
 </body>
 
 </html>
