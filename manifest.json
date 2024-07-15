@@ -4,8 +4,8 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#282c35",
-  "theme_color": "#282c35",
+  "background_color": "#121212",
+  "theme_color": "#121212",
   "description": "A comfy web launcher and/or homepage",
   "icons": [
     {
