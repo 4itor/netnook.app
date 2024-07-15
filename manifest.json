@@ -1,0 +1,27 @@
+{
+  "name": "netnook.app",
+  "short_name": "netnook.app",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#282c35",
+  "theme_color": "#282c35",
+  "description": "A comfy web launcher and/or homepage",
+  "icons": [
+    {
+      "src": "img/icons/maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "img/icons/general.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}
