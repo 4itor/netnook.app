@@ -126,6 +126,10 @@
         ];
         addIcons(initialCatalog);
 
+        if(isStandalone()) {
+            console.log('Standalone Mode!')
+        }
+
         // Inicializar filtro y selector
         let selectedPos = 0;
         let filterText = '';
