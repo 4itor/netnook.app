@@ -9,6 +9,12 @@
   "description": "A comfy web launcher and/or homepage",
   "icons": [
     {
+      "src": "img/maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "img/general.png",
       "sizes": "512x512",
       "type": "image/png",
