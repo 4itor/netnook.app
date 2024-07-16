@@ -247,16 +247,6 @@
             window.open(enlace, '_self'); // Abre el enlace en la ventana actual
         }
 
-        function buscarEnGoogle(query, lucky = false) {
-            if (lucky) {
-                const url = `https://duckduckgo.com/?q=!ducky+${encodeURIComponent(query)}`;
-                window.open(url, '_self');
-            } else {
-                const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-                window.open(url, '_blank');
-            }
-        }
-
         function googleSearch(query) {
             const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
             window.open(url, '_blank');
@@ -285,8 +275,8 @@
                     selectedPos = (selectedPos - 1 + iconos.length) % iconos.length;
                 } while (iconos[selectedPos].classList.contains('discarded'));
                 destacarSeleccionado();
-            } else if (e.key === 'Enter') {
-                abrirEnlaceSeleccionado();
+            // } else if (e.key === 'Enter') {
+            //     abrirEnlaceSeleccionado();
             } else if (e.ctrlKey && (e.key === 'h' || e.key === 'H')) {
                 e.preventDefault();
                 filterText = '';
