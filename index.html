@@ -77,6 +77,22 @@
         .icono:visited {
             color: #e0e0e0;
         }
+
+        .actionmenu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .actionmenu .fa {
+            font-size: 24px;
+            /* Tamaño de los iconos */
+            color: #e0e0e0;
+            /* Color de los iconos */
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
@@ -89,6 +105,11 @@
 <body>
     <div id="filtro" class="prompt"></div>
     <div id="icons" class="container"></div>
+    <div class="actionmenu">
+        <i class="fa fa-home"></i>
+        <i id="downloadIcon" class="fas fa-download"></i>
+        <i id="uploadIcon" class="fas fa-upload"></i>
+    </div>
 
     <script>
         // Definicion de Iconos predeterminados
@@ -126,7 +147,7 @@
         ];
         addIcons(initialCatalog);
 
-        if(isStandalone()) {
+        if (isStandalone()) {
             console.log('Standalone Mode!')
         }
 
@@ -257,6 +278,48 @@
             window.open(url, '_self');
         }
 
+        //--- Functions for Download/Upload the Catalog
+
+        function downloadSettings(catalog) {
+            // Obtener el contenido del <style> actual
+            const styleContent = Array.from(document.styleSheets)
+                .map(sheet => {
+                    try {
+                        return Array.from(sheet.cssRules)
+                            .map(rule => rule.cssText)
+                            .join(' ');
+                    } catch (e) {
+                        console.warn('Could not access stylesheet: ', sheet.href, e);
+                        return '';
+                    }
+                })
+                .join(' ');
+
+            // Crear el objeto que será descargado como JSON
+            const data = {
+                bookmarks: catalog,
+                style: styleContent
+            };
+
+            // Convertir el objeto a una cadena JSON y crear el enlace de descarga
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "catalog_and_style.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        //--- Events de menuactions
+
+        document.getElementById('downloadIcon').addEventListener('click', function () {
+            downloadSettings(initialCatalog);
+        });
+
+
+        //--- Event Listeners
+
         document.addEventListener('keydown', (e) => {
             if (e.key.length === 1 && e.key.match(/[a-z0-9]/i)) {
                 filterText += e.key;
@@ -275,8 +338,8 @@
                     selectedPos = (selectedPos - 1 + iconos.length) % iconos.length;
                 } while (iconos[selectedPos].classList.contains('discarded'));
                 destacarSeleccionado();
-            // } else if (e.key === 'Enter') {
-            //     abrirEnlaceSeleccionado();
+                // } else if (e.key === 'Enter') {
+                //     abrirEnlaceSeleccionado();
             } else if (e.ctrlKey && (e.key === 'h' || e.key === 'H')) {
                 e.preventDefault();
                 filterText = '';
