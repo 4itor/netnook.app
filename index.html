@@ -145,7 +145,11 @@
             { "addr": "https://open.spotify.com/playlist/1plJAm2h7qXQtxkSl82DDz", "name": "Monkey Radio", "icon": "fab fa-spotify" },
             { "addr": "https://www.youtube.com/watch?v=jfKfPfyJRdk", "name": "lofi hip hop radio", "icon": "fab fa-youtube" }
         ];
-        addIcons(initialCatalog);
+
+        // Modificar la función de carga de iconos para verificar si hay un catálogo guardado
+        const storedCatalog = loadCatalogFromLocal();
+        const catalogToUse = storedCatalog || initialCatalog;
+        addIcons(catalogToUse);
 
         if (isStandalone()) {
             console.log('Standalone Mode!')
@@ -280,7 +284,10 @@
 
         //--- Functions for Download/Upload the Catalog
 
-        function downloadSettings(catalog) {
+        function downloadSettings() {
+            // Usar catalogToUse directamente en lugar de pasarlo como parámetro
+            const catalog = catalogToUse;
+
             // Obtener el contenido del <style> actual
             const styleContent = Array.from(document.styleSheets)
                 .map(sheet => {
@@ -311,12 +318,42 @@
             downloadAnchorNode.remove();
         }
 
-        //--- Events de menuactions
+        // Función para manejar la carga de archivo JSON de configuración
+        function uploadSettings() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = event => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const data = JSON.parse(e.target.result);
+                    if (data.bookmarks) {
+                        saveCatalogToLocal(data.bookmarks);  // Guarda el catálogo en el almacenamiento local
+                        document.getElementById('icons').innerHTML = '';  // Limpia el contenedor de iconos
+                        addIcons(data.bookmarks);  // Añade los iconos desde el archivo subido
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
 
-        document.getElementById('downloadIcon').addEventListener('click', function () {
-            downloadSettings(initialCatalog);
-        });
+        //--- Functions for Save/Load the catalog to/from LocalStorage
 
+        function saveCatalogToLocal(catalog) {
+            localStorage.setItem('userCatalog', JSON.stringify(catalog));
+        }
+
+        function loadCatalogFromLocal() {
+            const savedCatalog = localStorage.getItem('userCatalog');
+            return savedCatalog ? JSON.parse(savedCatalog) : null;
+        }
+
+        //--- Events de menu-actions
+
+        document.getElementById('downloadIcon').addEventListener('click', downloadSettings);
+        document.getElementById('uploadIcon').addEventListener('click', uploadSettings);
 
         //--- Event Listeners
 
