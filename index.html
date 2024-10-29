@@ -117,7 +117,7 @@
     <div id="filtro" class="prompt"></div>
     <div id="icons" class="container"></div>
     <div class="actionmenu">
-        <i class="fa fa-home"></i>
+        <i id="homeIcon" class="fas fa-home"></i>
         <i id="settingsIcon" class="fas fa-cog"></i>
         <i id="downloadIcon" class="fas fa-download"></i>
         <i id="uploadIcon" class="fas fa-upload"></i>
@@ -332,7 +332,7 @@
             };
 
             // Convertir el objeto a una cadena JSON y crear el enlace de descarga
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
             downloadAnchorNode.setAttribute("download", "bookmarks.json");
