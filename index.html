@@ -306,6 +306,7 @@
             const catalog = catalogToUse;
 
             // Obtener el contenido del <style> actual
+            /*
             const styleContent = Array.from(document.styleSheets)
                 .map(sheet => {
                     try {
@@ -318,18 +319,21 @@
                     }
                 })
                 .join(' ');
+            */
 
             // Crear el objeto que será descargado como JSON
             const data = {
-                bookmarks: catalog,
+                bookmarks: catalog
+                /*,
                 style: styleContent
+                */
             };
 
             // Convertir el objeto a una cadena JSON y crear el enlace de descarga
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "catalog_and_style.json");
+            downloadAnchorNode.setAttribute("download", "bookmarks.json");
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
