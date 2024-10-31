@@ -61,14 +61,35 @@
         }
 
         .separator {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 10pt;
+            color: #555555;
             width: 100%;
-            height: 1px;
-            /* Adjust the height as needed */
-            background-color: #333333;
-            /* Set the desired color */
-            margin: 20px 0;
-            /* Optional: Adjust vertical spacing */
+            margin: 5px 0;
         }
+
+        .separator i {
+            margin-left: 8px;
+        }
+
+        .separator::before {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #333333;
+            margin-right: 10px;
+        }
+
+        .separator::after {
+            content: '';
+            width: 25px;
+            height: 1px;
+            background-color: #333333;
+            margin-left: 10px;
+        }
+
 
         .icono.discarded {
             color: #333333 !important;
@@ -148,7 +169,7 @@
             { "addr": "https://amazon.es/", "name": "Amazon", "icon": "fab fa-amazon" },
             { "addr": "https://es.aliexpress.com/", "name": "AliExpress", "icon": "fab fa-alipay" },
             { "addr": "https://chat.openai.com/", "name": "ChatGPT", "icon": "fas fa-brain" },
-            { "addr": null, "name": "separator", "icon": null },
+            { "addr": "separator", "name": "Media", "icon": null },
             { "addr": "https://discord.com/app", "name": "Discord", "icon": "fab fa-discord" },
             { "addr": "https://app.plex.tv/desktop/#!/", "name": "Plex", "icon": "fas fa-film" },
             { "addr": "https://raddio.app/", "name": "raddio.app", "icon": "fas fa-headphones" },
@@ -186,9 +207,15 @@
             }
 
             catalog.forEach(catalogItem => {
-                if (catalogItem.name === 'separator') {
+                if (catalogItem.addr === 'separator') {
                     const separator = document.createElement('div');
                     separator.className = 'separator';
+                    separator.textContent = catalogItem.name; // Agrega el nombre de la sección
+                    if (catalogItem.icon) {  // Si el separador tiene un icono definido
+                        const icon = document.createElement('i');
+                        icon.className = catalogItem.icon; // Agrega la clase del icono
+                        separator.appendChild(icon);
+                    }
                     contenedor.appendChild(separator);
                 } else {
                     const anchor = document.createElement('a');
