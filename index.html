@@ -16,10 +16,10 @@
 
         .prompt {
             position: fixed;
-            top: 0;
+            bottom: 0px;
             left: 0;
             right: 0;
-            padding: 5px;
+            padding: 8px 0px;
             background-color: #333333;
             /* Fondo del filtro */
             color: #e0e0e0;
@@ -28,8 +28,10 @@
             /* Fuente monoespaciada */
             text-align: center;
             /* Alineación centrada */
-            z-index: 1;
+            z-index: 0;
             /* Asegura que esté por encima de los iconos */
+            visibility: hidden;
+            /* Oculto inicialmente */
         }
 
         .container {
@@ -109,17 +111,16 @@
         .actionmenu {
             position: fixed;
             bottom: 0;
-            left: 0;
+            right: 10px;
             padding: 10px;
             display: flex;
             gap: 10px;
+            z-index: 1;
         }
 
         .actionmenu .fa {
             font-size: 24px;
-            /* Tamaño de los iconos */
             color: #e0e0e0;
-            /* Color de los iconos */
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -264,6 +265,7 @@
             filtroDisplay.textContent = filterText;
 
             if (filterText === '') {
+                filtroDisplay.style.visibility = 'hidden';
                 filtroDisplay.textContent = '';
                 iconos.forEach((icono) => {
                     if (icono.classList.contains('discarded')) {
@@ -273,7 +275,10 @@
                 selectedPos = 0;
                 destacarSeleccionado();
                 return;
+            } else {
+                filtroDisplay.style.visibility = 'visible'; // Muestra el prompt si el filtro tiene contenido
             }
+
             const regex = crearRegexDeFiltro(filterText.toLowerCase());
 
             let primerVisible = null;
