@@ -165,7 +165,7 @@
             { "addr": "https://amazon.es/", "name": "Amazon", "icon": "fab fa-amazon" },
             { "addr": "https://es.aliexpress.com/", "name": "AliExpress", "icon": "fab fa-alipay" },
             { "addr": "https://chat.openai.com/", "name": "ChatGPT", "icon": "fas fa-brain" },
-            { "addr": "separator", "name": "Media", "icon": null },
+            { "addr": "separator", "name": "Media", "icon": "fas fa-desktop" },
             { "addr": "https://discord.com/app", "name": "Discord", "icon": "fab fa-discord" },
             { "addr": "https://app.plex.tv/desktop/#!/", "name": "Plex", "icon": "fas fa-film" },
             { "addr": "https://raddio.app/", "name": "raddio.app", "icon": "fas fa-headphones" },
@@ -176,24 +176,20 @@
             { "addr": "https://www.youtube.com/watch?v=jfKfPfyJRdk", "name": "lofi hip hop radio", "icon": "fab fa-youtube" }
         ];
 
-        // Modificar la función de carga de iconos para verificar si hay un catálogo guardado
+        // Placeholder para las referencias globales a los iconos y el filtro
+        let iconos = [];
+        let filtroDisplay = null;
+
+        // Carga de catalogo desde almacenamiento local del navegador
         const storedCatalog = loadCatalogFromLocal();
         const catalogToUse = storedCatalog || initialCatalog;
+
+        // Añadir los iconos al contenedor
         addIcons(catalogToUse);
 
         if (isStandalone()) {
             console.log('Standalone Mode!')
         }
-
-        // Inicializar filtro y selector
-        let selectedPos = 0;
-        let filterText = '';
-        const iconos = document.querySelectorAll('.icono');
-        const filtroDisplay = document.getElementById('filtro');
-
-        // Inicializa destacando el primer icono y mostrando el filtro
-        filtroDisplay.textContent = '';
-        destacarSeleccionado();
 
         function addIcons(catalog) {
             const contenedor = document.getElementById('icons');
@@ -244,6 +240,13 @@
                     });
                 }
             });
+
+            // Actualiza las referencias y restablece el filtro
+            iconos = document.querySelectorAll('.icono');
+            filtroDisplay = document.getElementById('filtro');
+            filterText = '';  // Reinicia el texto del filtro
+            selectedPos = 0;
+            destacarSeleccionado();  // Aplica el estado destacado inicial
         }
 
         function handleLinkEvent(event, href) {
@@ -407,7 +410,7 @@
         //--- Event Listeners
 
         document.addEventListener('keydown', (e) => {
-            if (e.key.length === 1 && e.key.match(/[a-z0-9]/i)) {
+            if (e.key.length === 1 && e.key.match(/[ a-z0-9]/i)) {
                 filterText += e.key;
                 actualizarFiltro();
             } else if (e.key === 'Backspace') {
