@@ -70,10 +70,6 @@
             margin: 5px 0;
         }
 
-        .separator i {
-            margin-left: 8px;
-        }
-
         .separator::before {
             content: '';
             flex: 1;
@@ -212,6 +208,9 @@
                     separator.className = 'separator';
                     separator.textContent = catalogItem.name; // Agrega el nombre de la sección
                     if (catalogItem.icon) {  // Si el separador tiene un icono definido
+                        if (catalogItem.name) {  // Añade el espacio solo si name no es vacío ni null
+                            separator.innerHTML += '&nbsp;';
+                        }
                         const icon = document.createElement('i');
                         icon.className = catalogItem.icon; // Agrega la clase del icono
                         separator.appendChild(icon);
