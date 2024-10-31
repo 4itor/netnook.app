@@ -265,8 +265,7 @@
             filtroDisplay.textContent = filterText;
 
             if (filterText === '') {
-                filtroDisplay.style.visibility = 'hidden';
-                filtroDisplay.textContent = '';
+                filtroDisplay.style.visibility = 'hidden'; // Oculta el prompt si el filtro está vacío
                 iconos.forEach((icono) => {
                     if (icono.classList.contains('discarded')) {
                         icono.classList.remove('discarded');
@@ -280,14 +279,23 @@
             }
 
             const regex = crearRegexDeFiltro(filterText.toLowerCase());
-
             let primerVisible = null;
+            let primerVisibleDirecto = null;
+
             iconos.forEach((icono, index) => {
                 const nombre = icono.dataset.nombre.toLowerCase();
+
                 if (regex.test(nombre)) {
                     if (icono.classList.contains('discarded')) {
                         icono.classList.remove('discarded');
                     }
+
+                    // Selecciona el primer elemento que contiene el filtro como subcadena directa
+                    if (nombre.includes(filterText.toLowerCase()) && primerVisibleDirecto === null) {
+                        primerVisibleDirecto = index;
+                    }
+
+                    // Si no se ha encontrado un elemento con subcadena directa, selecciona el primero que cumpla el filtro
                     if (primerVisible === null) {
                         primerVisible = index;
                     }
@@ -298,9 +306,11 @@
                 }
             });
 
-            selectedPos = primerVisible ?? 0;
+            // Si existe un elemento con subcadena directa, seleccionamos el primero de ellos; de lo contrario, usamos el primer elemento que cumpla el filtro
+            selectedPos = primerVisibleDirecto ?? primerVisible ?? 0;
             destacarSeleccionado();
         }
+
 
         // Función para convertir el filtro en una expresión regular
         function crearRegexDeFiltro(filtro) {
