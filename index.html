@@ -281,6 +281,7 @@
             const regex = crearRegexDeFiltro(filterText.toLowerCase());
             let primerVisible = null;
             let primerVisibleDirecto = null;
+            let primerVisibleInicio = null;
 
             iconos.forEach((icono, index) => {
                 const nombre = icono.dataset.nombre.toLowerCase();
@@ -288,6 +289,11 @@
                 if (regex.test(nombre)) {
                     if (icono.classList.contains('discarded')) {
                         icono.classList.remove('discarded');
+                    }
+
+                    // Selecciona el primer elemento que contiene el filtro directamente al principio del nombre
+                    if (nombre.startsWith(filterText.toLowerCase()) && primerVisibleInicio === null) {
+                        primerVisibleInicio = index;
                     }
 
                     // Selecciona el primer elemento que contiene el filtro como subcadena directa
@@ -307,7 +313,7 @@
             });
 
             // Si existe un elemento con subcadena directa, seleccionamos el primero de ellos; de lo contrario, usamos el primer elemento que cumpla el filtro
-            selectedPos = primerVisibleDirecto ?? primerVisible ?? 0;
+            selectedPos = primerVisibleInicio ?? primerVisibleDirecto ?? primerVisible ?? 0;
             destacarSeleccionado();
         }
 
