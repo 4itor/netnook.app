@@ -1,0 +1,156 @@
+:root {
+    /* Color Palette */
+    --color-foreground: #e0e0e0;
+    --color-background: #121212;
+    --color-separator-label: #555555;
+    --color-separator-line: #333333;
+    --color-searchbar: #333333;
+    --color-searchbar-label: #555555;
+    --color-filterbar: #333333;
+    --color-hoverback: #333333;
+    --color-dimmed: #333333;
+
+    --icon-color-normal: var(--color-foreground);
+    --icon-color-dimmed: var(--color-dimmed);
+    --icon-color: var(--icon-color-normal);
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: monospace;
+    font-size: 16pt;
+}
+
+.prompt {
+    position: fixed;
+    bottom: 0px;
+    left: 0;
+    right: 0;
+    padding: 8px 0px;
+    background-color: var(--color-filterbar);
+    color: var(--icon-color-normal);
+    text-align: center;
+    z-index: 0;
+    visibility: hidden;
+}
+
+
+.prompt.search-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    padding: 10px;
+    background-color: var(--color-searchbar);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    visibility: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: inherit;
+    height: 1.8em;
+    line-height: 1;
+}
+
+.prompt.search-modal::after {
+    content: 'Search';
+    font-size: 12px;
+    color: var(--color-searchbar-label);
+    position: absolute;
+    top: 5px;
+    left: 10px;
+}
+
+/* Capa de fondo para oscurecer y desenfocar */
+#backgroundOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+    visibility: hidden;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.icono {
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--icon-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    font-size: 10pt;
+    color: var(--color-separator-label);
+    width: 100%;
+    margin: 5px 0;
+}
+
+.separator::before {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--color-separator-line);
+    margin-right: 10px;
+}
+
+.separator::after {
+    content: '';
+    width: 25px;
+    height: 1px;
+    background-color: var(--color-separator-line);
+    margin-left: 10px;
+}
+
+.icono.discarded {
+    color: var(--icon-color-dimmed) !important;
+}
+
+.icono:hover {
+    background-color: var(--color-hoverback);
+}
+
+/* Asegura que los enlaces visitados no se diferencien */
+.icono.discarded:visited {
+    color: var(--icon-color-dimmed) !important;
+}
+
+.icono:visited {
+    color: var(--icon-color) !important;
+}
+
+.actionmenu {
+    position: fixed;
+    bottom: 0;
+    right: 10px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1;
+}
+
+.actionmenu .fa {
+    font-size: 24px;
+    color: #e0e0e0;
+}
