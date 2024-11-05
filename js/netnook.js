@@ -182,11 +182,6 @@ function googleSearch(query) {
     window.open(url, '_self');
 }
 
-function imFeelingLucky(query) {
-    const url = `https://duckduckgo.com/?q=!ducky+${encodeURIComponent(query)}`;
-    window.open(url, '_self');
-}
-
 //--- Functions for Filter/Search visualization
 
 function updateFilterDisplay() {
@@ -272,14 +267,14 @@ document.getElementById('uploadIcon').addEventListener('click', uploadSettings);
 
 //--- Event Listeners
 
-// Evento de teclado modificado para activar la ventana de búsqueda con '?'
+// Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
     // No interceptar las combinaciones con Ctrl (que no sea Backspace), Super/Meta o Alt.
     if (e.altKey || e.metaKey || (e.ctrlKey && e.key !== 'Backspace')) {
         return;
     };
     // Tratamiento de teclas sin ctrl, ni alt, ni meta (excepto Ctrl+Backspace)
-    if (e.key === '?') {
+    if ((e.key === '/') && !isSearchMode) {
         e.preventDefault();
         if (isSearchMode) {
             // only disable if entered manually into serach mode
@@ -299,13 +294,17 @@ document.addEventListener('keydown', (e) => {
         }
     } else if (e.key === 'Escape') {
         e.preventDefault();
-        filterText = ''; // Limpiar el filtro si no estamos en modo de búsqueda
-        if (isSearchMode && isAutoSeachMode) {
+        // si estamos en search mode, pasamos a filtro y si no estamos en searchmode borramos el filtro
+        if (isSearchMode && !isAutoSeachMode) {
             disableSearchMode();
-            isAutoSeachMode = false;
+        } else {
+            filterText = ''; // Limpiar el filtro si no estamos en modo de búsqueda
+            if (isSearchMode && isAutoSeachMode) {
+                disableSearchMode();
+            }
         }
         actualizarFiltro();
-    } else if (e.key.length === 1 && e.key.match(/[\w\s.,;:]/i)) {
+    } else if (e.key.length === 1) {
         filterText += e.key;
         actualizarFiltro();
     } else if (e.key === 'Backspace') {
@@ -326,8 +325,5 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         filterText = '';
         actualizarFiltro();
-    } else if (e.key === '/') {
-        e.preventDefault();
-        imFeelingLucky(filterText);
     }
 });
