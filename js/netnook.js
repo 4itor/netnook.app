@@ -1,6 +1,7 @@
 // *** Global Vars ***
 let iconos = [];
 let isSearchMode = false;
+let isAutoSeachMode = false;
 let selectedPos = 0;
 let filterText = '';
 
@@ -135,6 +136,21 @@ function actualizarFiltro() {
 
     // Primero si existe un elemento que empiece por el filtro entrado; de lo contrario: si existe un elemento con subcadena directa, seleccionamos el primero de ellos; en caso de no existir, usamos el primer elemento que cumpla el filtro.
     selectedPos = primerVisibleInicio ?? primerVisibleDirecto ?? primerVisible ?? 0;
+
+    // En caso de haber entrado una cadena de filtro que no se cumple en ninguno de los enlaces, se activa el modo de búsqueda automaticamente, este modo de busqueda automatica se desactiva al borrar caracteres aidel filtro y encontrar al menos un enlace que cumpla el filtro.
+    if (selectedPos === 0) {
+        if (!isSearchMode) {
+            isAutoSeachMode = true;
+            enableSearchMode();
+        }
+    } else {
+        if (isSearchMode && isAutoSeachMode) {
+            isAutoSeachMode = false;
+            disableSearchMode();
+        }
+    }
+
+    // Destacamos los enlaces según el filtro
     destacarSeleccionado();
 }
 
