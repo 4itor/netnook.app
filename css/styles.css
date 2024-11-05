@@ -10,7 +10,6 @@
     --palette-filterbar: #333333;
     --palette-hoverback: #333333;
     --palette-dimmed: #333333;
-    --selector-color: var(--palette-selector);
 }
 
 body {
