@@ -145,7 +145,6 @@ function actualizarFiltro() {
         }
     } else {
         if (isSearchMode && isAutoSeachMode) {
-            isAutoSeachMode = false;
             disableSearchMode();
         }
     }
@@ -211,6 +210,7 @@ function enableSearchMode() {
 // Desactiva el modo de búsqueda
 function disableSearchMode() {
     isSearchMode = false;
+    isAutoSeachMode = false;
     filtroDisplay.classList.remove('search-modal');
     searchBackground.style.visibility = 'hidden';
     updateFilterDisplay();
