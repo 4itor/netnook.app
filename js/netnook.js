@@ -135,10 +135,10 @@ function actualizarFiltro() {
     });
 
     // Primero si existe un elemento que empiece por el filtro entrado; de lo contrario: si existe un elemento con subcadena directa, seleccionamos el primero de ellos; en caso de no existir, usamos el primer elemento que cumpla el filtro.
-    selectedPos = primerVisibleInicio ?? primerVisibleDirecto ?? primerVisible ?? 0;
+    selectedPos = primerVisibleInicio ?? primerVisibleDirecto ?? primerVisible ?? null;
 
     // En caso de haber entrado una cadena de filtro que no se cumple en ninguno de los enlaces, se activa el modo de búsqueda automaticamente, este modo de busqueda automatica se desactiva al borrar caracteres aidel filtro y encontrar al menos un enlace que cumpla el filtro.
-    if (selectedPos === 0) {
+    if ((selectedPos === null) && (filterText.length > 1)) {
         if (!isSearchMode) {
             isAutoSeachMode = true;
             enableSearchMode();
@@ -164,10 +164,10 @@ function crearRegexDeFiltro(filtro) {
 function destacarSeleccionado() {
     iconos.forEach((icono, index) => {
         if (index === selectedPos) {
-            icono.classList.add('seleccionado');
+            icono.classList.add('focused');
             icono.focus(); // Asegura que el elemento seleccionado tenga el foco
         } else {
-            icono.classList.remove('seleccionado');
+            icono.classList.remove('focused');
         }
     });
 }
@@ -177,8 +177,8 @@ function abrirEnlaceSeleccionado() {
     window.open(enlace, '_self'); // Abre el enlace en la ventana actual
 }
 
-function googleSearch(query) {
-    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+function googleSearch() {
+    const url = `https://www.google.com/search?q=${encodeURIComponent(filterText)}`;
     window.open(url, '_self');
 }
 
@@ -276,32 +276,20 @@ document.addEventListener('keydown', (e) => {
     // Tratamiento de teclas sin ctrl, ni alt, ni meta (excepto Ctrl+Backspace)
     if ((e.key === '/') && !isSearchMode) {
         e.preventDefault();
-        if (isSearchMode) {
-            // only disable if entered manually into serach mode
-            if (!isAutoSeachMode) {
-                disableSearchMode();
-            }
-        } else {
-            enableSearchMode();
-        }
+        enableSearchMode();
     } else if (e.key === 'Enter') {
         if (isSearchMode) {
             e.preventDefault();
-            googleSearch(filterText); // Realiza la búsqueda en Google
+            googleSearch(); // Realiza la búsqueda en Google
         } else {
             e.preventDefault();
             abrirEnlaceSeleccionado();
         }
     } else if (e.key === 'Escape') {
         e.preventDefault();
-        // si estamos en search mode, pasamos a filtro y si no estamos en searchmode borramos el filtro
-        if (isSearchMode && !isAutoSeachMode) {
+        filterText = '';
+        if(isSearchMode) {
             disableSearchMode();
-        } else {
-            filterText = ''; // Limpiar el filtro si no estamos en modo de búsqueda
-            if (isSearchMode && isAutoSeachMode) {
-                disableSearchMode();
-            }
         }
         actualizarFiltro();
     } else if (e.key.length === 1) {
@@ -311,12 +299,14 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         filterText = e.ctrlKey ? '' : filterText.slice(0, -1);
         actualizarFiltro();
-    } else if (e.key === 'ArrowRight') {
+    } else if ((e.key === 'ArrowRight') || ((e.key === 'Tab') && (!e.shiftKey))) {
+        e.preventDefault();
         do {
             selectedPos = (selectedPos + 1) % iconos.length;
         } while (iconos[selectedPos].classList.contains('discarded'));
         destacarSeleccionado();
-    } else if (e.key === 'ArrowLeft') {
+    } else if ((e.key === 'ArrowLeft') || ((e.key === 'Tab') && (e.shiftKey))) {
+        e.preventDefault();
         do {
             selectedPos = (selectedPos - 1 + iconos.length) % iconos.length;
         } while (iconos[selectedPos].classList.contains('discarded'));
