@@ -274,25 +274,38 @@ document.getElementById('uploadIcon').addEventListener('click', uploadSettings);
 
 // Evento de teclado modificado para activar la ventana de búsqueda con '?'
 document.addEventListener('keydown', (e) => {
+    // No interceptar las combinaciones con Ctrl (que no sea Backspace), Super/Meta o Alt.
+    if (e.altKey || e.metaKey || (e.ctrlKey && e.key !== 'Backspace')) {
+        return;
+    };
+    // Tratamiento de teclas sin ctrl, ni alt, ni meta (excepto Ctrl+Backspace)
     if (e.key === '?') {
         e.preventDefault();
         if (isSearchMode) {
             // only disable if entered manually into serach mode
-            if(!isAutoSeachMode) {
+            if (!isAutoSeachMode) {
                 disableSearchMode();
             }
         } else {
             enableSearchMode();
         }
     } else if (e.key === 'Enter') {
-        if(isSearchMode) {
+        if (isSearchMode) {
             e.preventDefault();
             googleSearch(filterText); // Realiza la búsqueda en Google
         } else {
             e.preventDefault();
             abrirEnlaceSeleccionado();
         }
-    } else if (e.key.length === 1 && e.key.match(/[ a-z0-9]/i)) {
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        filterText = ''; // Limpiar el filtro si no estamos en modo de búsqueda
+        if (isSearchMode && isAutoSeachMode) {
+            disableSearchMode();
+            isAutoSeachMode = false;
+        }
+        actualizarFiltro();
+    } else if (e.key.length === 1 && e.key.match(/[\w\s.,;:]/i)) {
         filterText += e.key;
         actualizarFiltro();
     } else if (e.key === 'Backspace') {
