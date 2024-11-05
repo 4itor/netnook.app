@@ -277,7 +277,10 @@ document.addEventListener('keydown', (e) => {
     if (e.key === '?') {
         e.preventDefault();
         if (isSearchMode) {
-            disableSearchMode();
+            // only disable if entered manually into serach mode
+            if(!isAutoSeachMode) {
+                disableSearchMode();
+            }
         } else {
             enableSearchMode();
         }
