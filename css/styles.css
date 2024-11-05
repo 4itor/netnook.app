@@ -4,7 +4,7 @@
     --palette-background: #121212;
     --palette-separator-label: #555555;
     --palette-separator-line: #333333;
-    --palette-searchbar: #333388;
+    --palette-searchbar: #222277;
     --palette-searchbar-label: #6666FF;
     --palette-selector: #e0e0e0;
     --palette-filterbar: #333333;
@@ -68,8 +68,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(16px);
     z-index: 1;
     visibility: hidden;
 }
