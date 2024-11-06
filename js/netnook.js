@@ -288,7 +288,7 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 'Escape') {
         e.preventDefault();
         filterText = '';
-        if(isSearchMode) {
+        if (isSearchMode) {
             disableSearchMode();
         }
         actualizarFiltro();
@@ -301,16 +301,20 @@ document.addEventListener('keydown', (e) => {
         actualizarFiltro();
     } else if ((e.key === 'ArrowRight') || ((e.key === 'Tab') && (!e.shiftKey))) {
         e.preventDefault();
-        do {
-            selectedPos = (selectedPos + 1) % iconos.length;
-        } while (iconos[selectedPos].classList.contains('discarded'));
-        destacarSeleccionado();
+        if (!isSearchMode && (selectedPos !== null)) {
+            do {
+                selectedPos = (selectedPos + 1) % iconos.length;
+            } while (iconos[selectedPos].classList.contains('discarded'));
+            destacarSeleccionado();
+        }
     } else if ((e.key === 'ArrowLeft') || ((e.key === 'Tab') && (e.shiftKey))) {
         e.preventDefault();
-        do {
-            selectedPos = (selectedPos - 1 + iconos.length) % iconos.length;
-        } while (iconos[selectedPos].classList.contains('discarded'));
-        destacarSeleccionado();
+        if (!isSearchMode && (selectedPos !== null)) {
+            do {
+                selectedPos = (selectedPos - 1 + iconos.length) % iconos.length;
+            } while (iconos[selectedPos].classList.contains('discarded'));
+            destacarSeleccionado();
+        }
     } else if (e.ctrlKey && (e.key === 'h' || e.key === 'H')) {
         e.preventDefault();
         filterText = '';
