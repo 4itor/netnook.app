@@ -2,7 +2,7 @@
 let iconos = [];
 let isSearchMode = false;
 let isAutoSeachMode = false;
-let selectedPos = 0;
+let selectedPos = null;
 let filterText = '';
 
 // global doument elements
@@ -95,7 +95,7 @@ function actualizarFiltro() {
                 icono.classList.remove('discarded');
             }
         });
-        selectedPos = 0;
+        selectedPos = null;
         destacarSeleccionado();
         return;
     }
