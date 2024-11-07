@@ -119,12 +119,12 @@ body {
     margin-left: 10px;
 }
 
-.icono.discarded {
-    color: var(--palette-dimmed) !important;
-}
-
 .icono.focused {
     border-color: var(--palette-selector) !important;
+}
+
+.icono:visited {
+    color: var(--palette-foreground)
 }
 
 .icono:focus {
@@ -135,17 +135,20 @@ body {
     background-color: var(--palette-hoverback);
 }
 
+.icono.discarded {
+    color: var(--palette-dimmed);
+}
+
 .icono.discarded:hover {
-    color: var(--palette-background) !important;
+    color: var(--palette-background);
 }
 
-/* Asegura que los enlaces visitados no se diferencien */
 .icono.discarded:visited {
-    color: var(--palette-dimmed) !important;
+    color: var(--palette-dimmed);
 }
 
-.icono:visited {
-    color: var(--palette-foreground) !important;
+.icono.discarded:visited:hover {
+    color: var(--palette-background);
 }
 
 .actionmenu {
