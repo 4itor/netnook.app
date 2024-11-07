@@ -135,6 +135,10 @@ body {
     background-color: var(--palette-hoverback);
 }
 
+.icono.discarded:hover {
+    color: var(--palette-background) !important;
+}
+
 /* Asegura que los enlaces visitados no se diferencien */
 .icono.discarded:visited {
     color: var(--palette-dimmed) !important;
