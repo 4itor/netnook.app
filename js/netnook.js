@@ -280,7 +280,16 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 'Enter') {
         if (isSearchMode) {
             e.preventDefault();
-            googleSearch(); // Realiza la búsqueda en Google
+            switch (filterText) {
+                case '!download':
+                    downloadSettings();
+                    break;
+                case '!upload':
+                    uploadSettings();
+                    break;
+                default:
+                    googleSearch(); // Realiza la búsqueda en Google
+            }
         } else {
             e.preventDefault();
             abrirEnlaceSeleccionado();
