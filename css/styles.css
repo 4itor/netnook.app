@@ -119,6 +119,13 @@ body {
     margin-left: 10px;
 }
 
+/* no margins when empty */
+.separator:empty::before,
+.separator:empty::after {
+    margin-left: 0;
+    margin-right: 0;
+}
+
 .icono.focused {
     border-color: var(--palette-selector) !important;
 }
