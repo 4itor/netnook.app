@@ -172,3 +172,12 @@ body {
     font-size: 24px;
     color: #e0e0e0;
 }
+
+#versiontag {
+    position: fixed;
+    bottom: 0;
+    left: 10px;
+    padding: 10px;
+    font-size: 8pt;
+    color: var(--palette-dimmed);
+}
