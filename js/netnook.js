@@ -263,6 +263,7 @@ function loadCatalogFromLocal() {
 //--- Función asíncrona para manejar el pegado desde el portapapeles
 async function handlePaste() {
     const clipboardText = await navigator.clipboard.readText();
+    enableSearchMode();
     filterText += clipboardText;
     actualizarFiltro();
 }
