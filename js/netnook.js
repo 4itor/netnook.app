@@ -8,6 +8,9 @@ let filterText = '';
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
 const filtroDisplay = document.getElementById('filtro');
+const dominioRegex = new RegExp(
+    `^[a-z0-9]+(\\.[a-z0-9]+)*\\.[a-z]{2,63}$`, "i"
+);
 
 // Carga de catalogo desde almacenamiento local del navegador
 let catalogToUse = loadCatalogFromLocal() || initialCatalog;
@@ -179,6 +182,9 @@ function abrirEnlaceSeleccionado() {
 
 function googleSearch() {
     if (isValidUrl(filterText)) {
+        if (!filterText.startsWith('http')) {
+            filterText = 'https://' + filterText;
+        }
         window.open(filterText, '_self');
     } else {
         const url = `https://www.google.com/search?q=${encodeURIComponent(filterText)}`;
@@ -219,6 +225,9 @@ function disableSearchMode() {
 
 function isValidUrl(texto) {
     try {
+        if (dominioRegex.test(texto)) {
+            texto = "https://" + texto;
+        }
         new URL(texto);
         return true; // Si el constructor no lanza una excepción, es una URL válida
     } catch (e) {
