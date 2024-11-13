@@ -178,8 +178,12 @@ function abrirEnlaceSeleccionado() {
 }
 
 function googleSearch() {
-    const url = `https://www.google.com/search?q=${encodeURIComponent(filterText)}`;
-    window.open(url, '_self');
+    if (isValidUrl(filterText)) {
+        window.open(filterText, '_self');
+    } else {
+        const url = `https://www.google.com/search?q=${encodeURIComponent(filterText)}`;
+        window.open(url, '_self');
+    }
 }
 
 //--- Functions for Filter/Search visualization

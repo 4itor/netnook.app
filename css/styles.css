@@ -69,6 +69,7 @@ body {
 
 .prompt.prompt.search-modal.valid-url::after {
     color: var(--palette-urlbar-label);
+    content: 'Open URL';
 }
 
 /* Capa de fondo para oscurecer y desenfocar */
