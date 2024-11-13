@@ -8,8 +8,10 @@ let filterText = '';
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
 const filtroDisplay = document.getElementById('filtro');
+
+// Url detection RegEx
 const dominioRegex = new RegExp(
-    `^[a-z0-9]+(\\.[a-z0-9]+)*\\.[a-z]{2,63}$`, "i"
+    `^(?:[a-z0-9]+\\.)*[a-z0-9]+\\.[a-z]{2,63}(?::\\d{1,5})?(?:/.*)?$`, "i"
 );
 
 // Carga de catalogo desde almacenamiento local del navegador
