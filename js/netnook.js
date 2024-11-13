@@ -260,6 +260,13 @@ function loadCatalogFromLocal() {
     return savedCatalog ? JSON.parse(savedCatalog) : null;
 }
 
+//--- Función asíncrona para manejar el pegado desde el portapapeles
+async function handlePaste() {
+    const clipboardText = await navigator.clipboard.readText();
+    filterText += clipboardText;
+    actualizarFiltro();
+}
+
 //--- Events de menu-actions
 
 document.getElementById('downloadIcon').addEventListener('click', downloadSettings);
@@ -270,7 +277,7 @@ document.getElementById('uploadIcon').addEventListener('click', uploadSettings);
 // Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
     // No interceptar las combinaciones con Ctrl (que no sea Backspace), Super/Meta o Alt.
-    if (e.altKey || e.metaKey || (e.ctrlKey && e.key !== 'Backspace')) {
+    if (e.altKey || e.metaKey || (e.ctrlKey && e.key !== 'Backspace' && e.key !== 'v' && e.key !== 'V')) {
         return;
     };
     // Tratamiento de teclas sin ctrl, ni alt, ni meta (excepto Ctrl+Backspace)
@@ -301,6 +308,9 @@ document.addEventListener('keydown', (e) => {
             disableSearchMode();
         }
         actualizarFiltro();
+    } else if (e.ctrlKey && (e.key === 'v' || e.key === 'V')) {
+        e.preventDefault();
+        handlePaste();
     } else if (e.key.length === 1) {
         filterText += e.key;
         actualizarFiltro();
