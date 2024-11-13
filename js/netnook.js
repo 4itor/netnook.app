@@ -186,8 +186,8 @@ function googleSearch() {
 
 function updateFilterDisplay() {
     filtroDisplay.textContent = filterText;
-
     if (isSearchMode) {
+        updateUrlColor();
         filtroDisplay.style.visibility = 'visible';
     } else {
         filtroDisplay.style.visibility = filterText ? 'visible' : 'hidden';
@@ -197,6 +197,7 @@ function updateFilterDisplay() {
 // Activa el modo de búsqueda
 function enableSearchMode() {
     isSearchMode = true;
+    updateUrlColor();
     filtroDisplay.classList.add('search-modal');
     searchBackground.style.visibility = 'visible';
     updateFilterDisplay();
@@ -207,8 +208,28 @@ function disableSearchMode() {
     isSearchMode = false;
     isAutoSeachMode = false;
     filtroDisplay.classList.remove('search-modal');
+    filtroDisplay.classList.remove('valid-url');
     searchBackground.style.visibility = 'hidden';
     updateFilterDisplay();
+}
+
+function isValidUrl(texto) {
+    try {
+        new URL(texto);
+        return true; // Si el constructor no lanza una excepción, es una URL válida
+    } catch (e) {
+        return false; // Si lanza una excepción, no es una URL válida
+    }
+}
+
+function updateUrlColor() {
+    if (isSearchMode) {
+        if (isValidUrl(filterText)) {
+            filtroDisplay.classList.add('valid-url');
+        } else {
+            filtroDisplay.classList.remove('valid-url');
+        }
+    }
 }
 
 //--- Functions for Download/Upload the Catalog

@@ -6,6 +6,8 @@
     --palette-separator-line: #333333;
     --palette-searchbar: #222277;
     --palette-searchbar-label: #6666FF;
+    --palette-urlbar: #225522;
+    --palette-urlbar-label: #66BB66;
     --palette-selector: #e0e0e0;
     --palette-filterbar: #333333;
     --palette-hoverback: #333333;
@@ -59,6 +61,14 @@ body {
     position: absolute;
     top: 5px;
     left: 10px;
+}
+
+.prompt.prompt.search-modal.valid-url {
+    background-color: var(--palette-urlbar);
+}
+
+.prompt.prompt.search-modal.valid-url::after {
+    color: var(--palette-urlbar-label);
 }
 
 /* Capa de fondo para oscurecer y desenfocar */
