@@ -28,7 +28,7 @@ if (isStandalone()) {
 function addIcons(catalog) {
     const contenedor = document.getElementById('icons');
     if (!contenedor) {
-        console.error('No se encontró el contenedor con id "contenedorIconos".');
+        console.error('No se encontró el contenedor con id "icons".');
         return;
     }
 
