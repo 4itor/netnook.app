@@ -338,7 +338,7 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             abrirEnlaceSeleccionado();
         }
-    } else if (e.key === 'Escape') {
+    } else if ((e.key === 'Escape') || (e.ctrlKey && (e.key === 'h' || e.key === 'H'))){
         e.preventDefault();
         filterText = '';
         if (isSearchMode) {
@@ -371,9 +371,5 @@ document.addEventListener('keydown', (e) => {
             } while (iconos[selectedPos].classList.contains('discarded'));
             destacarSeleccionado();
         }
-    } else if (e.ctrlKey && (e.key === 'h' || e.key === 'H')) {
-        e.preventDefault();
-        filterText = '';
-        actualizarFiltro();
     }
 });
