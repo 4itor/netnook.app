@@ -198,7 +198,8 @@ function googleSearch() {
 //--- Functions for Filter/Search visualization
 
 function updateFilterDisplay() {
-    filtroDisplay.textContent = filterText;
+    // Actualiza el contenido del filtro con el cursor
+    filtroDisplay.innerHTML = filterText.slice(0, cursorPos) + '\u200B<span id="cursor"></span>\u200B' + filterText.slice(cursorPos);
     if (isSearchMode) {
         updateUrlColor();
         filtroDisplay.style.visibility = 'visible';
@@ -354,25 +355,37 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         handlePaste();
     } else if (e.key.length === 1) {
-        filterText += e.key;
+        filterText = filterText.slice(0, cursorPos) + e.key + filterText.slice(cursorPos);
+        cursorPos += 1;
         actualizarFiltro();
     } else if (e.key === 'Backspace') {
         e.preventDefault();
         if (!e.ctrlKey) {
-            filterText = filterText.slice(0, -1);
+            if (cursorPos > 0) {
+                filterText = filterText.slice(0, cursorPos - 1) + filterText.slice(cursorPos);
+                cursorPos -= 1;
+            }
+            actualizarFiltro();
+        }
+    } else if (e.key === 'Delete') {
+        e.preventDefault();
+        if (!e.ctrlKey) {
+            if (cursorPos < filterText.length) {
+                filterText = filterText.slice(0, cursorPos) + filterText.slice(cursorPos + 1);
+            }
+            actualizarFiltro();
+        }
+    } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (cursorPos > 0) {
+            cursorPos -= 1;
             actualizarFiltro();
         }
     } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        if (cursorPos > 0) {
-            cursorPos -= 1;
-            UpdateCursorPos();
-        }
-    } else if (e.key === 'ArrowLeft') {
-        e.preventDefault();
         if (cursorPos < filterText.length) {
             cursorPos += 1;
-            UpdateCursorPos();
+            actualizarFiltro();
         }
     }
     else if ((e.key === 'Tab') && (!e.shiftKey)) {

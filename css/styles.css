@@ -22,7 +22,6 @@ body {
 }
 
 .prompt {
-    --char-count: 0;
     position: fixed;
     bottom: 0px;
     left: 0;
@@ -64,23 +63,24 @@ body {
     left: 10px;
 }
 
-.prompt.prompt.search-modal.valid-url {
+.prompt.search-modal.valid-url {
     background-color: var(--palette-urlbar);
 }
 
-.prompt.prompt.search-modal.valid-url::before {
+.prompt.search-modal.valid-url::before {
     color: var(--palette-urlbar-label);
     content: 'Open URL';
 }
 
-.prompt::after {
-    content: ""; /* Pseudoelemento vacío para el cursor */
+#cursor {
     display: inline-block;
-    width: 3px; /* ancho en pixels para evitar cambios en el grosor del cursor en funcion de su posicion */
-    height: 1em;
-    background-color: var(--palette-foreground);
-    animation: blink 0.6s step-end infinite;
-    margin-left: calc(-0.2ex - var(--char-count) * 1ex);
+    width: 2px; /* Ancho del cursor */
+    margin-right: -1px;
+    margin-left: -1px;
+    height: 1em; /* Altura del cursor */
+    background-color: var(--palette-foreground, black); /* Color del cursor */
+    animation: blink 0.6s step-end infinite; /* Animación de parpadeo */
+    vertical-align: bottom; /* Alineación vertical */
 }
 
 @keyframes blink {
@@ -88,7 +88,6 @@ body {
         background-color: transparent;
     }
 }
-
 
 /* Capa de fondo para oscurecer y desenfocar */
 #backgroundOverlay {
