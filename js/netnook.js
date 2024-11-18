@@ -10,6 +10,9 @@ let cursorPos = 0;
 const searchBackground = document.getElementById('backgroundOverlay')
 const filtroDisplay = document.getElementById('filtro');
 
+// Allowed Ctrl keys
+const allowedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
+
 // Url detection RegEx
 const dominioRegex = new RegExp(
     `^(?:[a-z0-9]+\\.)*[a-z0-9]+\\.[a-z]{2,63}(?::\\d{1,5})?(?:/.*)?$`, "i"
@@ -319,8 +322,8 @@ document.getElementById('uploadIcon').addEventListener('click', uploadSettings);
 
 // Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
-    // No interceptar las combinaciones con Ctrl (que no sea Backspace), Super/Meta o Alt.
-    if (e.altKey || e.metaKey || (e.ctrlKey && e.key !== 'Backspace' && e.key !== 'v' && e.key !== 'V')) {
+    // No interceptar las combinaciones con Ctrl (excepto excepciones), Super/Meta o Alt.
+    if (e.altKey || e.metaKey || (e.ctrlKey && !allowedCtrlKeys.has(e.key))) {
         return;
     };
     // Tratamiento de teclas sin ctrl, ni alt, ni meta (excepto Ctrl+Backspace)
@@ -344,7 +347,7 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             abrirEnlaceSeleccionado();
         }
-    } else if ((e.key === 'Escape') || (e.ctrlKey && (e.key === 'Backspace'))) {
+    } else if (e.key === 'Escape') {
         e.preventDefault();
         filterText = '';
         if (isSearchMode) {
@@ -365,30 +368,84 @@ document.addEventListener('keydown', (e) => {
                 filterText = filterText.slice(0, cursorPos - 1) + filterText.slice(cursorPos);
                 cursorPos -= 1;
             }
-            actualizarFiltro();
+        } else {
+            // Should delete a whole word including spaces after
+            let wordStart = cursorPos;
+            while ((wordStart > 0) && (filterText[wordStart - 1] === ' ')) {
+                wordStart -= 1;
+            }
+            while ((wordStart > 0) && (filterText[wordStart - 1] !== ' ')) {
+                wordStart -= 1;
+            }
+            filterText = filterText.slice(0, wordStart) + filterText.slice(cursorPos);
+            cursorPos = wordStart;
+            if ((filterText === '') && isSearchMode) {
+                disableSearchMode();
+            }
         }
+        actualizarFiltro();
     } else if (e.key === 'Delete') {
         e.preventDefault();
         if (!e.ctrlKey) {
             if (cursorPos < filterText.length) {
                 filterText = filterText.slice(0, cursorPos) + filterText.slice(cursorPos + 1);
             }
-            actualizarFiltro();
+        } else {
+            // Should delete a whole word including spaces before
+            let wordEnd = cursorPos;
+            while ((wordEnd < filterText.length) && (filterText[wordEnd] !== ' ')) {
+                wordEnd += 1;
+            }
+            while ((wordEnd < filterText.length) && (filterText[wordEnd] === ' ')) {
+                wordEnd += 1;
+            }
+            filterText = filterText.slice(0, cursorPos) + filterText.slice(wordEnd);
+            if ((filterText === '') && isSearchMode) {
+                disableSearchMode();
+            }
         }
+        actualizarFiltro();
     } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        if (cursorPos > 0) {
-            cursorPos -= 1;
-            actualizarFiltro();
+        if (!e.ctrlKey) {
+            if (cursorPos > 0) {
+                cursorPos -= 1;
+            }
+        } else {
+            // Should move the cursor to the beginning of the word
+            while ((cursorPos > 0) && (filterText[cursorPos - 1] === ' ')) {
+                cursorPos -= 1;
+            }
+            while ((cursorPos > 0) && (filterText[cursorPos - 1] !== ' ')) {
+                cursorPos -= 1;
+            }
         }
+        actualizarFiltro();
     } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        if (cursorPos < filterText.length) {
-            cursorPos += 1;
-            actualizarFiltro();
+        if (!e.ctrlKey) {
+            if (cursorPos < filterText.length) {
+                cursorPos += 1;
+            }
+        } else {
+            // Should move the cursor to the end of the word
+            while ((cursorPos < filterText.length) && (filterText[cursorPos] !== ' ')) {
+                cursorPos += 1;
+            }
+            while ((cursorPos < filterText.length) && (filterText[cursorPos] === ' ')) {
+                cursorPos += 1;
+            }
         }
-    }
-    else if ((e.key === 'Tab') && (!e.shiftKey)) {
+        actualizarFiltro();
+    } else if (e.key === 'Home') {
+        e.preventDefault();
+        cursorPos = 0;
+        actualizarFiltro();
+    } else if (e.key === 'End') {
+        e.preventDefault();
+        cursorPos = filterText.length;
+        actualizarFiltro();
+    } else if ((e.key === 'Tab') && (!e.shiftKey)) {
         e.preventDefault();
         if (!isSearchMode && (selectedPos !== null)) {
             do {

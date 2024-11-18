@@ -85,7 +85,7 @@ body {
 
 @keyframes blink {
     50% {
-        background-color: transparent;
+        opacity: 0;
     }
 }
 
