@@ -338,7 +338,7 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             abrirEnlaceSeleccionado();
         }
-    } else if ((e.key === 'Escape') || (e.ctrlKey && (e.key === 'h' || e.key === 'H'))){
+    } else if ((e.key === 'Escape') || (e.ctrlKey && (e.key === 'Backspace'))) {
         e.preventDefault();
         filterText = '';
         if (isSearchMode) {
@@ -353,8 +353,10 @@ document.addEventListener('keydown', (e) => {
         actualizarFiltro();
     } else if (e.key === 'Backspace') {
         e.preventDefault();
-        filterText = e.ctrlKey ? '' : filterText.slice(0, -1);
-        actualizarFiltro();
+        if (!e.ctrlKey) {
+            filterText = filterText.slice(0, -1);
+            actualizarFiltro();
+        }
     } else if ((e.key === 'ArrowRight') || ((e.key === 'Tab') && (!e.shiftKey))) {
         e.preventDefault();
         if (!isSearchMode && (selectedPos !== null)) {
