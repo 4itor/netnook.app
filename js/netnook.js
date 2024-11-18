@@ -4,6 +4,7 @@ let isSearchMode = false;
 let isAutoSeachMode = false;
 let selectedPos = null;
 let filterText = '';
+let cursorPos = 0;
 
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
@@ -247,6 +248,10 @@ function updateUrlColor() {
     }
 }
 
+function UpdateCursorPos() {
+    filtroDisplay.style.setProperty('--char-count', cursorPos);
+}
+
 //--- Functions for Download/Upload the Catalog
 
 function downloadSettings() {
@@ -357,7 +362,20 @@ document.addEventListener('keydown', (e) => {
             filterText = filterText.slice(0, -1);
             actualizarFiltro();
         }
-    } else if ((e.key === 'ArrowRight') || ((e.key === 'Tab') && (!e.shiftKey))) {
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (cursorPos > 0) {
+            cursorPos -= 1;
+            UpdateCursorPos();
+        }
+    } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (cursorPos < filterText.length) {
+            cursorPos += 1;
+            UpdateCursorPos();
+        }
+    }
+    else if ((e.key === 'Tab') && (!e.shiftKey)) {
         e.preventDefault();
         if (!isSearchMode && (selectedPos !== null)) {
             do {
@@ -365,7 +383,7 @@ document.addEventListener('keydown', (e) => {
             } while (iconos[selectedPos].classList.contains('discarded'));
             destacarSeleccionado();
         }
-    } else if ((e.key === 'ArrowLeft') || ((e.key === 'Tab') && (e.shiftKey))) {
+    } else if ((e.key === 'Tab') && (e.shiftKey)) {
         e.preventDefault();
         if (!isSearchMode && (selectedPos !== null)) {
             do {
