@@ -32,6 +32,12 @@ body {
     text-align: center;
     z-index: 0;
     visibility: hidden;
+    align-items: center;
+    justify-content: center;
+    height: 1.8em;
+    line-height: 1;
+    display: flex;
+    padding: 10px;
 }
 
 .prompt.search-modal {
@@ -40,21 +46,14 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50%;
-    padding: 10px;
     background-color: var(--palette-searchbar);
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     z-index: 2;
     visibility: visible;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: inherit;
-    height: 1.8em;
-    line-height: 1;
 }
 
-.prompt.search-modal::after {
+.prompt.search-modal::before {
     content: 'Search';
     font-size: 12px;
     color: var(--palette-searchbar-label);
@@ -67,10 +66,27 @@ body {
     background-color: var(--palette-urlbar);
 }
 
-.prompt.prompt.search-modal.valid-url::after {
+.prompt.prompt.search-modal.valid-url::before {
     color: var(--palette-urlbar-label);
     content: 'Open URL';
 }
+
+.prompt::after {
+    content: ""; /* Pseudoelemento vacío para el cursor */
+    display: inline-block;
+    width: 0.2ex;
+    height: 1em;
+    background-color: var(--palette-foreground);
+    animation: blink 0.6s step-end infinite;
+    /* vertical-align: bottom; Alinea con la línea de base del texto */
+}
+
+@keyframes blink {
+    50% {
+        background-color: transparent;
+    }
+}
+
 
 /* Capa de fondo para oscurecer y desenfocar */
 #backgroundOverlay {
