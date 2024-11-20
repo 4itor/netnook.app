@@ -326,6 +326,11 @@ document.addEventListener('keydown', (e) => {
     if (e.altKey || e.metaKey || (e.ctrlKey && !allowedCtrlKeys.has(e.key))) {
         return;
     };
+    // Borrar la seleccion de texto si la hubiera
+    const selection = window.getSelection();
+    if (selection) {
+        selection.removeAllRanges();
+    }
     // Tratamiento de teclas sin ctrl, ni alt, ni meta (excepto Ctrl+Backspace)
     if ((e.key === '/') && !isSearchMode) {
         e.preventDefault();
