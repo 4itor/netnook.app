@@ -12,6 +12,8 @@
     --palette-filterbar: #333333;
     --palette-hoverback: #333333;
     --palette-dimmed: #333333;
+    --palette-dialog: #444444;
+    --palette-editmode: #FFA500;
 }
 
 body {
@@ -208,4 +210,118 @@ body {
     padding: 10px;
     font-size: 8pt;
     color: var(--palette-dimmed);
+}
+
+html.edit-mode::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: calc(100vw); /* Resta el doble del ancho del borde */
+    height: calc(100vh); /* Resta el doble del ancho del borde */
+    border: 5px dashed var(--palette-editmode); /* Borde discontinuo usando la variable */
+    z-index: 1000; /* Asegura que esté encima del contenido */
+    pointer-events: none; /* Permite interactuar con el contenido subyacente */
+    box-sizing: border-box; /* Asegura que las dimensiones incluyan el borde */
+}
+
+#editModal {
+    position: fixed; /* Fijo, para que siempre esté centrado en la pantalla */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centramos el modal */
+    width: 90%; /* Ocupa el 90% del ancho de la pantalla */
+    max-width: 800px; /* Máximo ancho para pantallas grandes */
+    background-color: var(--palette-dialog); /* Fondo del modal */
+    color: var(--palette-foreground); /* Texto del modal */
+    border: 1px solid var(--palette-separator-line); /* Borde */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 20px; /* Espaciado interno */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra para resaltar */
+    z-index: 1000; /* Aparece encima de otros elementos */
+}
+
+#editModal.hidden {
+    visibility: hidden;
+}
+
+#editModal form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espaciado entre las filas del formulario */
+    align-items: flex-start; /* Alinea los elementos a la izquierda */
+    width: 100%;
+}
+
+#editModal .form-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#editModal label {
+    font-family: monospace;
+    font-size: 14pt;
+    width: 20%; /* El label ocupa el 25% del ancho */
+    text-align: right; /* Alineación a la derecha */
+    margin-right: 15px; /* Espaciado entre el label y el input */
+    color: var(--palette-foreground);
+}
+
+#editModal input {
+    font-family: monospace;
+    font-size: 14pt;
+    flex: 1; /* El input ocupa el espacio restante */
+    padding: 10px;
+    border: 1px solid var(--palette-separator-line);
+    border-radius: 5px;
+    background-color: var(--palette-background);
+    color: var(--palette-foreground);
+}
+
+#editModal input:focus {
+    outline: 2px solid var(--palette-selector);
+}
+
+#editModal .form-buttons {
+    display: flex;
+    justify-content: flex-end; /* Alinea los botones al final */
+    gap: 15px; /* Espaciado entre botones */
+    width: 100%;
+}
+
+#editModal button {
+    font-family: monospace;
+    font-size: 14pt;
+    padding: 10px 20px; /* Ajusta el espaciado interno */
+    border: none;
+    border-radius: 5px;
+    background-color: var(--palette-searchbar);
+    color: var(--palette-searchbar-label);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#editModal button:hover {
+    background-color: var(--palette-selector);
+    color: var(--palette-background);
+}
+
+/* Texto fijo en la esquina inferior izquierda */
+#editModeHint {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    font-family: monospace;
+    font-size: 14pt;
+    color: var(--palette-editmode);
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    visibility: hidden; /* Oculto por defecto */
+}
+
+#editModeHint.visible {
+    visibility: visible; /* Se muestra cuando está en modo edición */
 }

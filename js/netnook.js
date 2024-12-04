@@ -5,10 +5,23 @@ let isAutoSeachMode = false;
 let selectedPos = null;
 let filterText = '';
 let cursorPos = 0;
+let isEditMode = false;
+let editTarget = null;
 
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
 const filtroDisplay = document.getElementById('filtro');
+const settingsIcon = document.getElementById('settingsIcon');
+const editModal = document.getElementById('editModal');
+const editForm = document.getElementById('editForm');
+const saveEditButton = document.getElementById('saveEdit');
+const cancelEditButton = document.getElementById('cancelEdit');
+
+// Edit mode Hint
+const editModeHint = document.createElement('div');
+editModeHint.id = 'editModeHint';
+editModeHint.textContent = 'Click to edit';
+document.body.appendChild(editModeHint);
 
 // Allowed Ctrl keys
 const allowedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
@@ -322,6 +335,10 @@ document.getElementById('uploadIcon').addEventListener('click', uploadSettings);
 
 // Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
+    // Si estamos en modo edicion, no interceptar las teclas
+    if (isEditMode) {
+        return;
+    }
     // No interceptar las combinaciones con Ctrl (excepto excepciones), Super/Meta o Alt.
     if (e.altKey || e.metaKey || (e.ctrlKey && !allowedCtrlKeys.has(e.key))) {
         return;
@@ -468,3 +485,64 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+settingsIcon.addEventListener('click', () => {
+    isEditMode = !isEditMode;
+
+    if (isEditMode) {
+        filterText = '';
+        if (isSearchMode) {
+            disableSearchMode();
+        }
+        actualizarFiltro();
+        document.documentElement.classList.add('edit-mode'); // Activa la clase en <html>
+        editModeHint.classList.add('visible'); // Muestra el texto
+        console.log('Modo edición activado');
+    } else {
+        document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
+        editModeHint.classList.remove('visible'); // Oculta el texto
+        console.log('Modo edición desactivado');
+    }
+});
+
+document.getElementById('icons').addEventListener('click', (event) => {
+    if (isEditMode && event.target.closest('.icono')) {
+        event.preventDefault();
+        editTarget = event.target.closest('.icono');
+        openEditModal(editTarget);
+    }
+});
+
+function openEditModal(target) {
+    const currentName = target.dataset.nombre;
+    const currentAddr = target.href;
+    const currentIcon = target.querySelector('i').className;
+
+    document.getElementById('editName').value = currentName;
+    document.getElementById('editAddr').value = currentAddr;
+    document.getElementById('editIcon').value = currentIcon;
+
+    editModal.classList.remove('hidden');
+}
+
+saveEditButton.addEventListener('click', () => {
+    if (!editTarget) return;
+
+    const newName = document.getElementById('editName').value;
+    const newAddr = document.getElementById('editAddr').value;
+    const newIcon = document.getElementById('editIcon').value;
+
+    editTarget.dataset.nombre = newName;
+    editTarget.href = newAddr;
+    editTarget.querySelector('i').className = newIcon;
+    editTarget.querySelector('span').textContent = newName;
+
+    closeEditModal();
+});
+
+cancelEditButton.addEventListener('click', closeEditModal);
+
+function closeEditModal() {
+    editTarget = null;
+    editModal.classList.add('hidden');
+}
