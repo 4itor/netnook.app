@@ -197,6 +197,9 @@ body {
     z-index: 1;
     color: var(--palette-dimmed);
     cursor: pointer;
+    bottom: 5px;
+    right: 5px;
+    font-size: 20pt;
 }
 
 #settingsIcon:hover {
@@ -205,14 +208,10 @@ body {
 
 .edit-mode #settingsIcon {
     color: var(--palette-editmode);
-    bottom: 5px;
-    right: 5px;
-    font-size: 200%;
 }
 
 .edit-mode #settingsIcon:hover {
     color: var(--palette-editmode-selected);
-
 }
 
 #versiontag {
@@ -353,13 +352,13 @@ html.edit-mode::before {
 
 /* Edit mode menus */
 #downloadMenu {
-    bottom: 70px;
+    bottom: 60px;
     right: 15px;
     cursor: pointer;
 }
 
 #uploadMenu {
-    bottom: 110px;
+    bottom: 100px;
     right: 15px;
     cursor: pointer;
 }
