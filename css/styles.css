@@ -14,6 +14,7 @@
     --palette-dimmed: #333333;
     --palette-dialog: #444444;
     --palette-editmode: #FFA500;
+    --palette-editmode-selected: #ffbb3d;
 }
 
 body {
@@ -188,25 +189,36 @@ body {
     color: var(--palette-background);
 }
 
-.actionmenu {
+#settingsIcon {
     position: fixed;
     bottom: 0;
-    right: 10px;
+    right: 0;
     padding: 10px;
-    display: flex;
-    gap: 10px;
     z-index: 1;
+    color: var(--palette-dimmed);
+    cursor: pointer;
 }
 
-.actionmenu .fa {
-    font-size: 24px;
-    color: #e0e0e0;
+#settingsIcon:hover {
+    color: var(--palette-foreground);
+}
+
+.edit-mode #settingsIcon {
+    color: var(--palette-editmode);
+    bottom: 5px;
+    right: 5px;
+    font-size: 200%;
+}
+
+.edit-mode #settingsIcon:hover {
+    color: var(--palette-editmode-selected);
+
 }
 
 #versiontag {
     position: fixed;
     bottom: 0;
-    left: 10px;
+    left: 5px;
     padding: 10px;
     font-size: 8pt;
     color: var(--palette-dimmed);
@@ -217,12 +229,12 @@ html.edit-mode::before {
     position: fixed;
     top: 0;
     left: 0;
-    width: calc(100vw); /* Resta el doble del ancho del borde */
-    height: calc(100vh); /* Resta el doble del ancho del borde */
-    border: 5px dashed var(--palette-editmode); /* Borde discontinuo usando la variable */
-    z-index: 1000; /* Asegura que esté encima del contenido */
-    pointer-events: none; /* Permite interactuar con el contenido subyacente */
-    box-sizing: border-box; /* Asegura que las dimensiones incluyan el borde */
+    width: calc(100vw);
+    height: calc(100vh);
+    border: 5px dashed var(--palette-editmode);
+    z-index: 1000;
+    pointer-events: none;
+    box-sizing: border-box;
 }
 
 #editModal {
@@ -293,7 +305,7 @@ html.edit-mode::before {
 #editModal button {
     font-family: monospace;
     font-size: 14pt;
-    padding: 10px 20px; /* Ajusta el espaciado interno */
+    padding: 8px 16px; /* Ajusta el espaciado interno */
     border: none;
     border-radius: 5px;
     background-color: var(--palette-searchbar);
@@ -307,21 +319,47 @@ html.edit-mode::before {
     color: var(--palette-background);
 }
 
-/* Texto fijo en la esquina inferior izquierda */
-#editModeHint {
-    position: fixed;
-    bottom: 15px;
-    left: 15px;
+/* Textos y menus de modo edicion */
+
+.editElement {
     font-family: monospace;
     font-size: 14pt;
     color: var(--palette-editmode);
     background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente */
     padding: 5px 10px;
     border-radius: 5px;
+    position: fixed;
     z-index: 1000;
     visibility: hidden; /* Oculto por defecto */
 }
 
-#editModeHint.visible {
+.editElement.clickable {
+    cursor: pointer;
+}
+
+.editElement:hover {
+    color: var(--palette-editmode-selected);
+}
+
+.edit-mode .editElement {
     visibility: visible; /* Se muestra cuando está en modo edición */
+}
+
+#editModeHint {
+    top: 15px;
+    left: 15px;
+    pointer-events: none;
+}
+
+/* Edit mode menus */
+#downloadMenu {
+    bottom: 70px;
+    right: 15px;
+    cursor: pointer;
+}
+
+#uploadMenu {
+    bottom: 110px;
+    right: 15px;
+    cursor: pointer;
 }

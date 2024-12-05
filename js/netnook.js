@@ -17,12 +17,6 @@ const editForm = document.getElementById('editForm');
 const saveEditButton = document.getElementById('saveEdit');
 const cancelEditButton = document.getElementById('cancelEdit');
 
-// Edit mode Hint
-const editModeHint = document.createElement('div');
-editModeHint.id = 'editModeHint';
-editModeHint.textContent = 'Click to edit';
-document.body.appendChild(editModeHint);
-
 // Allowed Ctrl keys
 const allowedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
 
@@ -328,8 +322,8 @@ async function handlePaste() {
 
 //--- Events de menu-actions
 
-document.getElementById('downloadIcon').addEventListener('click', downloadSettings);
-document.getElementById('uploadIcon').addEventListener('click', uploadSettings);
+document.getElementById('downloadMenu').addEventListener('click', downloadSettings);
+document.getElementById('uploadMenu').addEventListener('click', uploadSettings);
 
 //--- Event Listeners
 
@@ -496,11 +490,9 @@ settingsIcon.addEventListener('click', () => {
         }
         actualizarFiltro();
         document.documentElement.classList.add('edit-mode'); // Activa la clase en <html>
-        editModeHint.classList.add('visible'); // Muestra el texto
         console.log('Modo edición activado');
     } else {
         document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
-        editModeHint.classList.remove('visible'); // Oculta el texto
         console.log('Modo edición desactivado');
     }
 });

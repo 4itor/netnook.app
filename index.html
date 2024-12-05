@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>New tab...</title>
@@ -11,16 +12,18 @@
     <meta name="msapplication-TileImage" content="/img/icons/ms-icon-144x144.png">
     <meta name="theme-color" content="#121212">
 </head>
+
 <body>
     <div id="backgroundOverlay"></div>
     <div id="filtro" class="prompt"></div>
     <div id="icons" class="container"></div>
-    <div class="actionmenu">
-        <!-- <i id="homeIcon" class="fas fa-home"></i> -->
-        <i id="settingsIcon" class="fas fa-cog"></i>
-        <i id="downloadIcon" class="fas fa-download"></i>
-        <i id="uploadIcon" class="fas fa-upload"></i>
-    </div>
+    <div id="versiontag">v24.49.01</div>
+    <!-- Edit mode -->
+    <i id="settingsIcon" class="fas fa-cog"></i>
+    <div id="editModeHint" class="editElement">Edit mode</div>
+    <div id="downloadMenu" class="editElement">Download <i class="fas fa-download"></i></div>
+    <dib id="uploadMenu" class="editElement">Upload <i class="fas fa-upload"></i></div>
+    <!-- Popup Edit -->
     <div id="editModal" class="hidden">
         <form id="editForm">
             <div class="form-group">
@@ -41,9 +44,8 @@
             </div>
         </form>
     </div>
-    <div id="editModeHint">Click to edit</div>
-    <div id="versiontag">v24.47.04</div>
     <script src="data/bookmarks.js"></script>
     <script src="js/netnook.js"></script>
 </body>
+
 </html>
