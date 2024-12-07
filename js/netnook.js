@@ -1,11 +1,12 @@
 // *** Global Vars ***
-let iconos = [];
+let elements = [];
 let isSearchMode = false;
 let isAutoSeachMode = false;
 let selectedPos = null;
 let filterText = '';
 let cursorPos = 0;
 let isEditMode = false;
+let isEditDialogOpen = false;
 let editTarget = null;
 
 // global doument elements
@@ -16,6 +17,7 @@ const editModal = document.getElementById('editModal');
 const editForm = document.getElementById('editForm');
 const saveEditButton = document.getElementById('saveEdit');
 const cancelEditButton = document.getElementById('cancelEdit');
+const contenedor = document.getElementById('icons');
 
 // Allowed Ctrl keys
 const allowedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
@@ -30,69 +32,93 @@ let catalogToUse = loadCatalogFromLocal() || initialCatalog;
 console.log('Bookmark list is ' + catalogToUse.length + ' items long');
 
 // Añadir los iconos al contenedor
-addIcons(catalogToUse);
+populateCatalog(catalogToUse);
 
 if (isStandalone()) {
     console.log('Standalone Mode!');
 }
 
-function addIcons(catalog) {
-    const contenedor = document.getElementById('icons');
-    if (!contenedor) {
-        console.error('No se encontró el contenedor con id "icons".');
-        return;
+function addSeparator(catalogItem) {
+    // Crear separador como un div
+    const separator = document.createElement('div');
+    separator.className = 'separator';
+    separator.dataset.nombre = catalogItem.name;
+
+    // Agregar texto e icono al separador
+    separator.textContent = catalogItem.name || '';
+    if (catalogItem.icon) {
+        const icon = document.createElement('i');
+        icon.className = catalogItem.icon;
+        separator.appendChild(icon);
     }
+
+    contenedor.appendChild(separator);
+
+    // Añadir comportamiento dinámico de enlaces para el click
+    separator.addEventListener('click', function (event) {
+        handleLinkEvent(event, '');
+    });
+}
+
+function addLink(catalogItem) {
+    // Crear ícono como un enlace
+    const anchor = document.createElement('a');
+    anchor.className = 'icono';
+    anchor.href = catalogItem.addr;
+    anchor.dataset.nombre = catalogItem.name;
+
+    const icon = document.createElement('i');
+    icon.className = catalogItem.icon;
+
+    const text = document.createTextNode(catalogItem.name);
+
+    anchor.appendChild(icon);
+    anchor.appendChild(text);
+    contenedor.appendChild(anchor);
+
+    // Añadir comportamiento dinámico de enlaces para el click
+    anchor.addEventListener('click', function (event) {
+        handleLinkEvent(event, anchor.href);
+    });
+
+    // // Añadir comportamiento dinámico de enlaces para el keydown
+    // anchor.addEventListener('keydown', function (event) {
+    //     if (event.key === 'Enter') {
+    //         handleLinkEvent(event, anchor.href);
+    //     }
+    // });
+}
+
+function populateCatalog(catalog) {
+    // Limpiar el contenedor antes de regenerar los íconos
+    contenedor.innerHTML = '';
 
     catalog.forEach(catalogItem => {
         if (catalogItem.addr === 'separator') {
-            const separator = document.createElement('div');
-            separator.className = 'separator';
-            separator.textContent = catalogItem.name; // Agrega el nombre de la sección
-            if (catalogItem.icon) {  // Si el separador tiene un icono definido
-                if (catalogItem.name) {  // Añade el espacio solo si name no es vacío ni null
-                    separator.innerHTML += '&nbsp;';
-                }
-                const icon = document.createElement('i');
-                icon.className = catalogItem.icon; // Agrega la clase del icono
-                separator.appendChild(icon);
-            }
-            contenedor.appendChild(separator);
+            addSeparator(catalogItem);
         } else {
-            const anchor = document.createElement('a');
-            anchor.className = 'icono';
-            anchor.href = catalogItem.addr;
-            anchor.dataset.nombre = catalogItem.name;
-
-            const icon = document.createElement('i');
-            icon.className = catalogItem.icon;
-
-            const text = document.createTextNode(`${catalogItem.name}`);
-
-            anchor.appendChild(icon);
-            anchor.appendChild(text);
-            contenedor.appendChild(anchor);
-
-            // Añadir comportamiento dinámico de enlaces para el click
-            anchor.addEventListener('click', function (event) {
-                handleLinkEvent(event, anchor.href);
-            });
-
-            // Añadir comportamiento dinámico de enlaces para el keydown
-            anchor.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    handleLinkEvent(event, anchor.href);
-                }
-            });
+            addLink(catalogItem);
         }
     });
 
     // Actualiza las referencias y restablece el filtro
-    iconos = document.querySelectorAll('.icono');
+    elements = Array.from(contenedor.children);
     destacarSeleccionado();  // Aplica el estado destacado inicial
 }
 
 function handleLinkEvent(event, href) {
-    if (isStandalone()) {
+    if (isEditMode) {
+        event.preventDefault(); // Anula el comportamiento por defecto del enlace
+
+        const clickedIcon = event.target.closest('.icono, .separator');
+        if (clickedIcon) {
+            // Seleccionar el elemento clicado
+            selectedPos = Array.from(elements).indexOf(clickedIcon);
+
+            // Actualizar la selección visual
+            destacarSeleccionado();
+        }
+    } else if (isStandalone()) {
         event.preventDefault();
         window.open(href, '_blank');
     }
@@ -106,7 +132,7 @@ function actualizarFiltro() {
     updateFilterDisplay();
 
     if (filterText === '') {
-        iconos.forEach((icono) => {
+        elements.forEach((icono) => {
             if (icono.classList.contains('discarded')) {
                 icono.classList.remove('discarded');
             }
@@ -121,31 +147,33 @@ function actualizarFiltro() {
     let primerVisibleDirecto = null;
     let primerVisibleInicio = null;
 
-    iconos.forEach((icono, index) => {
-        const nombre = icono.dataset.nombre.toLowerCase();
+    elements.forEach((icono, index) => {
+        if (icono.tagName.toLowerCase() !== 'div') {
+            const nombre = icono.dataset.nombre.toLowerCase();
 
-        if (regex.test(nombre)) {
-            if (icono.classList.contains('discarded')) {
-                icono.classList.remove('discarded');
-            }
+            if (regex.test(nombre)) {
+                if (icono.classList.contains('discarded')) {
+                    icono.classList.remove('discarded');
+                }
 
-            // Selecciona el primer elemento que contiene el filtro directamente al principio del nombre
-            if (nombre.startsWith(filterText.toLowerCase()) && primerVisibleInicio === null) {
-                primerVisibleInicio = index;
-            }
+                // Selecciona el primer elemento que contiene el filtro directamente al principio del nombre
+                if (nombre.startsWith(filterText.toLowerCase()) && primerVisibleInicio === null) {
+                    primerVisibleInicio = index;
+                }
 
-            // Selecciona el primer elemento que contiene el filtro como subcadena directa
-            if (nombre.includes(filterText.toLowerCase()) && primerVisibleDirecto === null) {
-                primerVisibleDirecto = index;
-            }
+                // Selecciona el primer elemento que contiene el filtro como subcadena directa
+                if (nombre.includes(filterText.toLowerCase()) && primerVisibleDirecto === null) {
+                    primerVisibleDirecto = index;
+                }
 
-            // Si no se ha encontrado un elemento con subcadena directa, selecciona el primero que cumpla el filtro
-            if (primerVisible === null) {
-                primerVisible = index;
-            }
-        } else {
-            if (!icono.classList.contains('discarded')) {
-                icono.classList.add('discarded');
+                // Si no se ha encontrado un elemento con subcadena directa, selecciona el primero que cumpla el filtro
+                if (primerVisible === null) {
+                    primerVisible = index;
+                }
+            } else {
+                if (!icono.classList.contains('discarded')) {
+                    icono.classList.add('discarded');
+                }
             }
         }
     });
@@ -178,18 +206,19 @@ function crearRegexDeFiltro(filtro) {
 }
 
 function destacarSeleccionado() {
-    iconos.forEach((icono, index) => {
+    console.log('Pos: ' + selectedPos)
+    elements.forEach((elemento, index) => {
         if (index === selectedPos) {
-            icono.classList.add('focused');
-            icono.focus(); // Asegura que el elemento seleccionado tenga el foco
+            elemento.classList.add('focused');
+            elemento.focus(); // Asegura que el elemento seleccionado tenga el foco
         } else {
-            icono.classList.remove('focused');
+            elemento.classList.remove('focused');
         }
     });
 }
 
 function abrirEnlaceSeleccionado() {
-    const enlace = iconos[selectedPos].getAttribute('href');
+    const enlace = elements[selectedPos].getAttribute('href');
     window.open(enlace, '_self'); // Abre el enlace en la ventana actual
 }
 
@@ -292,8 +321,7 @@ function uploadSettings() {
             const data = JSON.parse(e.target.result);
             if (data.bookmarks) {
                 saveCatalogToLocal(data.bookmarks);  // Guarda el catálogo en el almacenamiento local
-                document.getElementById('icons').innerHTML = '';  // Limpia el contenedor de iconos
-                addIcons(data.bookmarks);  // Añade los iconos desde el archivo subido
+                populateCatalog(data.bookmarks);  // Añade los iconos desde el archivo subido
             }
         };
         reader.readAsText(file);
@@ -329,19 +357,83 @@ document.getElementById('uploadMenu').addEventListener('click', uploadSettings);
 
 // Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
-    // Si estamos en modo edicion, no interceptar las teclas
-    if (isEditMode) {
-        return;
+    // Si tenemos abierto el dialogo de edición, no interceptar el uso de teclado
+    if (isEditDialogOpen) {
+        if (selectedPos !== null) {
+            if (e.key === 'Escape') {
+                // Deseleccionar el elemento
+                e.preventDefault();
+                closeEditModal();
+            }
+            return;
+        }
     }
-    // No interceptar las combinaciones con Ctrl (excepto excepciones), Super/Meta o Alt.
-    if (e.altKey || e.metaKey || (e.ctrlKey && !allowedCtrlKeys.has(e.key))) {
-        return;
-    };
+
     // Borrar la seleccion de texto si la hubiera
     const selection = window.getSelection();
     if (selection) {
         selection.removeAllRanges();
     }
+
+    if (isEditMode) {
+        if (selectedPos !== null) {
+
+            if (e.key === 'Escape') {
+                // Deseleccionar el elemento
+                e.preventDefault();
+                selectedPos = null;
+                destacarSeleccionado();
+            } else if (e.key === 'e') {
+                e.preventDefault();
+                // Editar el elemento
+                const selectedElement = elements[selectedPos];
+                openEditModal(selectedElement);
+            } else if ((e.key === 'ArrowLeft') || (e.key === 'a')) {
+                // Mover el elemento a la izquierda
+                e.preventDefault();
+                console.log('left');
+                moverElemento(selectedPos, 'left');
+            } else if ((e.key === 'ArrowRight') || (e.key === 'd')) {
+                // Mover el elemento a la derecha
+                e.preventDefault();
+                console.log('right');
+                moverElemento(selectedPos, 'right');
+            } else if ((e.key === 'ArrowUp') || (e.key === 'w')) {
+                // Mover el elemento al grupo anterior
+                e.preventDefault();
+                console.log('up');
+                moverElemento(selectedPos, 'up');
+            } else if ((e.key === 'ArrowDown') || (e.key === 's')) {
+                // Mover el elemento al grupo siguiente
+                e.preventDefault();
+                console.log('down');
+                moverElemento(selectedPos, 'down');
+            } else if (e.key === 'n') {
+                // Añadir un nuevo elemento
+                e.preventDefault();
+                console.log('add-new Link');
+                addNewElement('#', 'NewLink', '');
+            } else if (e.key === 'm') {
+                // Añadir un nuevo elemento separador
+                e.preventDefault();
+                console.log('add-new Link');
+                addNewElement('separator', '', '');
+            } else if (e.key === 'x') {
+                // Eliminar el elemento seleccionado
+                e.preventDefault();
+                console.log('delete');
+                eliminarElemento(selectedPos);
+            }
+        }
+        return;
+    }
+
+
+    // No interceptar las combinaciones con Ctrl (excepto excepciones), Super/Meta o Alt.
+    if (e.altKey || e.metaKey || (e.ctrlKey && !allowedCtrlKeys.has(e.key))) {
+        return;
+    };
+
     // Tratamiento de teclas sin ctrl, ni alt, ni meta (excepto Ctrl+Backspace)
     if ((e.key === '/') && !isSearchMode) {
         e.preventDefault();
@@ -465,16 +557,16 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         if (!isSearchMode && (selectedPos !== null)) {
             do {
-                selectedPos = (selectedPos + 1) % iconos.length;
-            } while (iconos[selectedPos].classList.contains('discarded'));
+                selectedPos = (selectedPos + 1) % elements.length;
+            } while (elements[selectedPos].classList.contains('discarded'));
             destacarSeleccionado();
         }
     } else if ((e.key === 'Tab') && (e.shiftKey)) {
         e.preventDefault();
         if (!isSearchMode && (selectedPos !== null)) {
             do {
-                selectedPos = (selectedPos - 1 + iconos.length) % iconos.length;
-            } while (iconos[selectedPos].classList.contains('discarded'));
+                selectedPos = (selectedPos - 1 + elements.length) % elements.length;
+            } while (elements[selectedPos].classList.contains('discarded'));
             destacarSeleccionado();
         }
     }
@@ -492,49 +584,129 @@ settingsIcon.addEventListener('click', () => {
         document.documentElement.classList.add('edit-mode'); // Activa la clase en <html>
         console.log('Modo edición activado');
     } else {
+        selectedPos = null;
+        destacarSeleccionado();
+        saveCatalogToLocal(catalogToUse); // Guarda el catálogo en el almacenamiento local
         document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
         console.log('Modo edición desactivado');
     }
 });
 
-document.getElementById('icons').addEventListener('click', (event) => {
-    if (isEditMode && event.target.closest('.icono')) {
-        event.preventDefault();
-        editTarget = event.target.closest('.icono');
-        openEditModal(editTarget);
-    }
-});
-
 function openEditModal(target) {
-    const currentName = target.dataset.nombre;
-    const currentAddr = target.href;
-    const currentIcon = target.querySelector('i').className;
+    const index = elements.indexOf(target);
+    if (index === -1) return;
 
-    document.getElementById('editName').value = currentName;
-    document.getElementById('editAddr').value = currentAddr;
-    document.getElementById('editIcon').value = currentIcon;
+    const selectedData = catalogToUse[index];
 
+    document.getElementById('editName').value = selectedData.name;
+    document.getElementById('editAddr').value = selectedData.addr;
+    document.getElementById('editIcon').value = selectedData.icon;
+
+    isEditDialogOpen = true;
     editModal.classList.remove('hidden');
 }
 
 saveEditButton.addEventListener('click', () => {
-    if (!editTarget) return;
+    if (selectedPos === null) return;
 
-    const newName = document.getElementById('editName').value;
-    const newAddr = document.getElementById('editAddr').value;
-    const newIcon = document.getElementById('editIcon').value;
+    const selectedData = catalogToUse[selectedPos];
+    if (!selectedData) return;
 
-    editTarget.dataset.nombre = newName;
-    editTarget.href = newAddr;
-    editTarget.querySelector('i').className = newIcon;
-    editTarget.querySelector('span').textContent = newName;
+    selectedData.name = document.getElementById('editName').value;
+    selectedData.addr = document.getElementById('editAddr').value;
+    selectedData.icon = document.getElementById('editIcon').value;
 
+    actualizarVista();
+    destacarSeleccionado();
     closeEditModal();
 });
+
 
 cancelEditButton.addEventListener('click', closeEditModal);
 
 function closeEditModal() {
-    editTarget = null;
+    isEditDialogOpen = false;
     editModal.classList.add('hidden');
 }
+
+function moverElemento(index, direction) {
+    if (index < 0 || index >= catalogToUse.length) return;
+
+    let targetIndex = index;
+    if (direction === 'left' && index > 0) {
+        targetIndex = index - 1;
+    } else if (direction === 'right' && index < catalogToUse.length - 1) {
+        targetIndex = index + 1;
+    }
+
+    if (targetIndex !== index) {
+        console.log('Intercambio: ' + index + '-' + targetIndex);
+
+        // Intercambiar los elementos en el array
+        [catalogToUse[index], catalogToUse[targetIndex]] = [catalogToUse[targetIndex], catalogToUse[index]];
+
+        // Actualizar el DOM directamente
+        const parent = document.getElementById('icons');
+        const elementToMove = elements[index];
+        const targetElement = elements[targetIndex];
+
+        if (direction === 'left') {
+            parent.insertBefore(elementToMove, targetElement); // Mover antes del objetivo
+        } else if (direction === 'right') {
+            parent.insertBefore(targetElement, elementToMove); // Mover después del objetivo
+            parent.insertBefore(elementToMove, targetElement.nextSibling); // Recolocar después
+        }
+
+        // Actualizar el array de elementos DOM
+        [elements[index], elements[targetIndex]] = [elements[targetIndex], elements[index]];
+
+        // Actualizar la selección
+        selectedPos = targetIndex;
+        destacarSeleccionado();
+    }
+}
+
+
+function eliminarElemento() {
+    if (selectedPos === null) return;
+
+    catalogToUse.splice(selectedPos, 1);
+
+    // Actualizar la vista
+    actualizarVista();
+    selectedPos = null;
+    destacarSeleccionado();
+}
+
+function addNewElement(newAddr, newName, newIcon) {
+    const newElement = {
+        addr: newAddr,
+        name: newName,
+        icon: newIcon
+    };
+
+    // Agregar al array
+    catalogToUse.push(newElement);
+
+    if (newElement.addr === 'separator') {
+        addSeparator(newElement);
+    } else {
+        addLink(newElement);
+    }
+
+    // Actualiza `iconos` para incluir tanto separadores como íconos
+    elements = Array.from(contenedor.children);
+    destacarSeleccionado(); // Aplica el estado destacado inicial
+}
+
+function actualizarVista() {
+    const contenedor = document.getElementById('icons');
+    contenedor.innerHTML = ''; // Limpiar el contenedor
+
+    // Regenerar los íconos
+    populateCatalog(catalogToUse);
+
+    // Actualizar la referencia global a los íconos
+    elements = Array.from(contenedor.children);
+}
+
