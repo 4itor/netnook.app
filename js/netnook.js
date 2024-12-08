@@ -321,8 +321,9 @@ function uploadSettings() {
         reader.onload = e => {
             const data = JSON.parse(e.target.result);
             if (data.bookmarks) {
-                saveCatalogToLocal(data.bookmarks);  // Guarda el catálogo en el almacenamiento local
-                populateCatalog(data.bookmarks);  // Añade los iconos desde el archivo subido
+                // Añade los iconos desde el archivo subido y los muestra en pantalla
+                catalogToUse = data.bookmarks;
+                populateCatalog(catalogToUse);
             }
         };
         reader.readAsText(file);
