@@ -18,29 +18,32 @@
     <div id="filtro" class="prompt"></div>
     <div id="icons" class="container"></div>
     <!-- Edit mode -->
-    <i id="settingsIcon" class="fas fa-cog"></i>
+    <i id="settingsIcon" class="fas fa-wrench"></i>
     <div id="editModeHint" class="editElement">
         Click to select link or separator<br>
         ~ E to edit<br>
         ~ Cursors (or wasd) to move<br>
-        ~ N to add link / M add separator<br>
+        ~ N to add link after selected
+        ~ M add separator after<br>
         ~ X to delete
     </div>
     <div id="downloadMenu" class="editElement">Download <i class="fas fa-download"></i></div>
     <div id="uploadMenu" class="editElement">Upload <i class="fas fa-upload"></i></div>
     <!-- Popup Edit -->
-    <div id="editModal" class="hidden">
+    <div id="editDialog" class="hidden">
         <form id="editForm">
             <div class="form-group">
                 <label for="editName">Name</label>
                 <input type="text" id="editName" name="name" required>
             </div>
-            <div class="form-group">
+            <div id="editFormAddress" class="form-group">
                 <label for="editAddr">Address</label>
                 <input type="text" id="editAddr" name="addr" required>
             </div>
             <div class="form-group">
-                <label for="editIcon">Icon</label>
+                <label for="editIcon">Icon
+                    <a href="https://fontawesome.com/v6/search?m=free" target="_blank"><i class="fa-solid fa-magnifying-glass"></i></a>
+                </label>
                 <input type="text" id="editIcon" name="icon">
             </div>
             <div class="form-buttons">
@@ -49,7 +52,7 @@
             </div>
         </form>
     </div>
-    <div id="versiontag">v24.50.01</div>
+    <div id="versiontag">v24.50.02</div>
     <!-- javascript -->
     <script src="data/bookmarks.js"></script>
     <script src="js/netnook.js"></script>

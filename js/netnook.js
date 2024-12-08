@@ -13,8 +13,9 @@ let editTarget = null;
 const searchBackground = document.getElementById('backgroundOverlay')
 const filtroDisplay = document.getElementById('filtro');
 const settingsIcon = document.getElementById('settingsIcon');
-const editModal = document.getElementById('editModal');
+const editDialog = document.getElementById('editDialog');
 const editForm = document.getElementById('editForm');
+const editFormAddress = document.getElementById('editFormAddress');
 const saveEditButton = document.getElementById('saveEdit');
 const cancelEditButton = document.getElementById('cancelEdit');
 const contenedor = document.getElementById('icons');
@@ -363,7 +364,7 @@ document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 // Deseleccionar el elemento
                 e.preventDefault();
-                closeEditModal();
+                closeEditDialog();
             }
             return;
         }
@@ -387,7 +388,7 @@ document.addEventListener('keydown', (e) => {
                 e.preventDefault();
                 // Editar el elemento
                 const selectedElement = elements[selectedPos];
-                openEditModal(selectedElement);
+                openEditDialog(selectedElement);
             } else if ((e.key === 'ArrowLeft') || (e.key === 'a')) {
                 // Mover el elemento a la izquierda
                 e.preventDefault();
@@ -592,7 +593,7 @@ settingsIcon.addEventListener('click', () => {
     }
 });
 
-function openEditModal(target) {
+function openEditDialog(target) {
     const index = elements.indexOf(target);
     if (index === -1) return;
 
@@ -602,8 +603,14 @@ function openEditModal(target) {
     document.getElementById('editAddr').value = selectedData.addr;
     document.getElementById('editIcon').value = selectedData.icon;
 
+    if (selectedData.addr === 'separator') {
+        editFormAddress.classList.add('hidden');
+    } else {
+        editFormAddress.classList.remove('hidden');
+    }
     isEditDialogOpen = true;
-    editModal.classList.remove('hidden');
+    editDialog.classList.remove('hidden');
+
 }
 
 saveEditButton.addEventListener('click', () => {
@@ -618,15 +625,15 @@ saveEditButton.addEventListener('click', () => {
 
     actualizarVista();
     destacarSeleccionado();
-    closeEditModal();
+    closeEditDialog();
 });
 
 
-cancelEditButton.addEventListener('click', closeEditModal);
+cancelEditButton.addEventListener('click', closeEditDialog);
 
-function closeEditModal() {
+function closeEditDialog() {
     isEditDialogOpen = false;
-    editModal.classList.add('hidden');
+    editDialog.classList.add('hidden');
 }
 
 function moverElemento(index, direction) {
@@ -665,7 +672,6 @@ function moverElemento(index, direction) {
         destacarSeleccionado();
     }
 }
-
 
 function eliminarElemento() {
     if (selectedPos === null) return;
