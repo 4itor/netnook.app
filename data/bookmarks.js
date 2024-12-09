@@ -9,7 +9,7 @@ const initialCatalog = [
     { "addr": "https://github.com/", "name": "Github", "icon": "fab fa-github" },
     { "addr": "https://app.powerbi.com", "name": "PowerBi", "icon": "fas fa-briefcase" },
     { "addr": "https://vscode.dev/", "name": "VS Code Online", "icon": "fas fa-laptop-code" },
-    { "addr": "http://devdocs.io/", "name": "Devdocs", "icon": "fas fa-code" },
+    { "addr": "https://devdocs.io/", "name": "Devdocs", "icon": "fas fa-code" },
     { "addr": "https://status.dev.azure.com/", "name": "Azure DevOps Status", "icon": "fas fa-thermometer" },
     { "addr": "https://translate.google.es/?hl=ca", "name": "Google Translate", "icon": "fas fa-language" },
     { "addr": "https://graphemica.com/", "name": "Graphemica", "icon": "fas fa-font" },
