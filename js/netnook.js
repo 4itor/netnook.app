@@ -560,7 +560,8 @@ document.addEventListener('keydown', (e) => {
         if (!isSearchMode && (selectedPos !== null)) {
             do {
                 selectedPos = (selectedPos + 1) % elements.length;
-            } while (elements[selectedPos].classList.contains('discarded'));
+            } while ((elements[selectedPos].classList.contains('discarded') ||
+                     (elements[selectedPos].tagName.toLowerCase() === 'div')));
             destacarSeleccionado();
         }
     } else if ((e.key === 'Tab') && (e.shiftKey)) {
@@ -568,7 +569,8 @@ document.addEventListener('keydown', (e) => {
         if (!isSearchMode && (selectedPos !== null)) {
             do {
                 selectedPos = (selectedPos - 1 + elements.length) % elements.length;
-            } while (elements[selectedPos].classList.contains('discarded'));
+            } while ((elements[selectedPos].classList.contains('discarded') ||
+                     (elements[selectedPos].tagName.toLowerCase() === 'div')));
             destacarSeleccionado();
         }
     }
