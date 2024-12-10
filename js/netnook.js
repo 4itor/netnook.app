@@ -21,7 +21,7 @@ const cancelEditButton = document.getElementById('cancelEdit');
 const contenedor = document.getElementById('icons');
 
 // Allowed Ctrl keys
-const allowedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
+const managedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
 
 // Url detection RegEx
 const dominioRegex = new RegExp(
@@ -432,7 +432,7 @@ document.addEventListener('keydown', (e) => {
 
 
     // No interceptar las combinaciones con Ctrl (excepto excepciones), Super/Meta o Alt.
-    if (e.altKey || e.metaKey || (e.ctrlKey && !allowedCtrlKeys.has(e.key))) {
+    if (e.altKey || e.metaKey || (e.ctrlKey && !managedCtrlKeys.has(e.key))) {
         return;
     };
 
@@ -575,6 +575,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 settingsIcon.addEventListener('click', () => {
+    // Si tenemos abierto el dialogo de edición, deshabilitar el icono de modo edición.
+    if (isEditDialogOpen) {
+        return;
+    }
+
     isEditMode = !isEditMode;
 
     if (isEditMode) {
