@@ -39,21 +39,25 @@ if (isStandalone()) {
     console.log('Standalone Mode!');
 }
 
-function addSeparator(catalogItem) {
+function addSeparator(catalogItem, position = null) {
     // Crear separador como un div
     const separator = document.createElement('div');
-    separator.className = 'separator';
+    separator.className = 'separator discarded';
     separator.dataset.nombre = catalogItem.name;
-
-    // Agregar texto e icono al separador
     separator.textContent = catalogItem.name || '';
+
     if (catalogItem.icon) {
         const icon = document.createElement('i');
         icon.className = catalogItem.icon;
         separator.appendChild(icon);
     }
 
-    contenedor.appendChild(separator);
+    // Insertar en la posición especificada o al final
+    if (position !== null && contenedor.children[position]) {
+        contenedor.insertBefore(separator, contenedor.children[position]);
+    } else {
+        contenedor.appendChild(separator);
+    }
 
     // Añadir comportamiento dinámico de enlaces para el click
     separator.addEventListener('click', function (event) {
@@ -61,7 +65,8 @@ function addSeparator(catalogItem) {
     });
 }
 
-function addLink(catalogItem) {
+
+function addLink(catalogItem, position = null) {
     // Crear ícono como un enlace
     const anchor = document.createElement('a');
     anchor.className = 'icono';
@@ -70,25 +75,24 @@ function addLink(catalogItem) {
 
     const icon = document.createElement('i');
     icon.className = catalogItem.icon;
-
     const text = document.createTextNode(catalogItem.name);
 
     anchor.appendChild(icon);
     anchor.appendChild(text);
-    contenedor.appendChild(anchor);
+
+    // Insertar en la posición especificada o al final
+    if (position !== null && contenedor.children[position]) {
+        contenedor.insertBefore(anchor, contenedor.children[position]);
+    } else {
+        contenedor.appendChild(anchor);
+    }
 
     // Añadir comportamiento dinámico de enlaces para el click
     anchor.addEventListener('click', function (event) {
         handleLinkEvent(event, anchor.href);
     });
-
-    // // Añadir comportamiento dinámico de enlaces para el keydown
-    // anchor.addEventListener('keydown', function (event) {
-    //     if (event.key === 'Enter') {
-    //         handleLinkEvent(event, anchor.href);
-    //     }
-    // });
 }
+
 
 function populateCatalog(catalog) {
     // Limpiar el contenedor antes de regenerar los íconos
@@ -110,7 +114,9 @@ function populateCatalog(catalog) {
 function handleLinkEvent(event, href) {
     if (isEditMode) {
         event.preventDefault(); // Anula el comportamiento por defecto del enlace
-
+        if (isEditDialogOpen) {
+            return;
+        }
         const clickedIcon = event.target.closest('.icono, .separator');
         if (clickedIcon) {
             // Seleccionar el elemento clicado
@@ -377,6 +383,7 @@ document.addEventListener('keydown', (e) => {
         selection.removeAllRanges();
     }
 
+    // Gestion de teclas en modo edicion
     if (isEditMode) {
         if (selectedPos !== null) {
 
@@ -386,10 +393,9 @@ document.addEventListener('keydown', (e) => {
                 selectedPos = null;
                 destacarSeleccionado();
             } else if (e.key === 'e') {
-                e.preventDefault();
                 // Editar el elemento
-                const selectedElement = elements[selectedPos];
-                openEditDialog(selectedElement);
+                e.preventDefault();
+                openEditDialog();
             } else if ((e.key === 'ArrowLeft') || (e.key === 'a')) {
                 // Mover el elemento a la izquierda
                 e.preventDefault();
@@ -429,7 +435,6 @@ document.addEventListener('keydown', (e) => {
         }
         return;
     }
-
 
     // No interceptar las combinaciones con Ctrl (excepto excepciones), Super/Meta o Alt.
     if (e.altKey || e.metaKey || (e.ctrlKey && !managedCtrlKeys.has(e.key))) {
@@ -560,8 +565,7 @@ document.addEventListener('keydown', (e) => {
         if (!isSearchMode && (selectedPos !== null)) {
             do {
                 selectedPos = (selectedPos + 1) % elements.length;
-            } while ((elements[selectedPos].classList.contains('discarded') ||
-                     (elements[selectedPos].tagName.toLowerCase() === 'div')));
+            } while (elements[selectedPos].classList.contains('discarded'));
             destacarSeleccionado();
         }
     } else if ((e.key === 'Tab') && (e.shiftKey)) {
@@ -569,8 +573,7 @@ document.addEventListener('keydown', (e) => {
         if (!isSearchMode && (selectedPos !== null)) {
             do {
                 selectedPos = (selectedPos - 1 + elements.length) % elements.length;
-            } while ((elements[selectedPos].classList.contains('discarded') ||
-                     (elements[selectedPos].tagName.toLowerCase() === 'div')));
+            } while (elements[selectedPos].classList.contains('discarded'));
             destacarSeleccionado();
         }
     }
@@ -601,11 +604,10 @@ settingsIcon.addEventListener('click', () => {
     }
 });
 
-function openEditDialog(target) {
-    const index = elements.indexOf(target);
-    if (index === -1) return;
+function openEditDialog() {
+    if (selectedPos === null) return;
 
-    const selectedData = catalogToUse[index];
+    const selectedData = catalogToUse[selectedPos];
 
     document.getElementById('editName').value = selectedData.name;
     document.getElementById('editAddr').value = selectedData.addr;
@@ -618,7 +620,6 @@ function openEditDialog(target) {
     }
     isEditDialogOpen = true;
     editDialog.classList.remove('hidden');
-
 }
 
 saveEditButton.addEventListener('click', () => {
@@ -699,18 +700,29 @@ function addNewElement(newAddr, newName, newIcon) {
         icon: newIcon
     };
 
-    // Agregar al array
-    catalogToUse.push(newElement);
+    // Determinar la posición en la que se insertará el nuevo elemento
+    const insertPos = (selectedPos !== null) ? selectedPos + 1 : catalogToUse.length;
 
+    // Insertar el nuevo elemento en el array `catalogToUse`
+    catalogToUse.splice(insertPos, 0, newElement);
+
+    // Usar las funciones actualizadas para insertar directamente en la posición deseada
     if (newElement.addr === 'separator') {
-        addSeparator(newElement);
+        addSeparator(newElement, insertPos);
     } else {
-        addLink(newElement);
+        addLink(newElement, insertPos);
     }
 
-    // Actualiza `iconos` para incluir tanto separadores como íconos
+    // Actualizar las referencias de los elementos DOM
     elements = Array.from(contenedor.children);
-    destacarSeleccionado(); // Aplica el estado destacado inicial
+
+    // Actualizar la selección al nuevo elemento
+    selectedPos = insertPos;
+    destacarSeleccionado();
+
+    if (newElement.addr !== 'separator') {
+        openEditDialog();
+    }
 }
 
 function actualizarVista() {
