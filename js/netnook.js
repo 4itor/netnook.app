@@ -8,6 +8,7 @@ let cursorPos = 0;
 let isEditMode = false;
 let isEditDialogOpen = false;
 let editTarget = null;
+let UnsavedChanges = false;
 
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
@@ -599,6 +600,7 @@ settingsIcon.addEventListener('click', () => {
         selectedPos = null;
         destacarSeleccionado();
         saveCatalogToLocal(catalogToUse); // Guarda el catálogo en el almacenamiento local
+        UnsavedChanges = false;
         document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
         console.log('Modo edición desactivado');
     }
@@ -632,6 +634,7 @@ saveEditButton.addEventListener('click', () => {
     selectedData.addr = document.getElementById('editAddr').value;
     selectedData.icon = document.getElementById('editIcon').value;
 
+    UnsavedChanges = true;
     actualizarVista();
     destacarSeleccionado();
     closeEditDialog();
@@ -646,6 +649,7 @@ function closeEditDialog() {
 }
 
 function moverElemento(index, direction) {
+    UnsavedChanges = true;
     if (index < 0 || index >= catalogToUse.length) return;
 
     let targetIndex = index;
@@ -683,6 +687,7 @@ function moverElemento(index, direction) {
 }
 
 function eliminarElemento() {
+    UnsavedChanges = true;
     if (selectedPos === null) return;
 
     catalogToUse.splice(selectedPos, 1);
@@ -694,6 +699,7 @@ function eliminarElemento() {
 }
 
 function addNewElement(newAddr, newName, newIcon) {
+    UnsavedChanges = true;
     const newElement = {
         addr: newAddr,
         name: newName,
@@ -735,4 +741,15 @@ function actualizarVista() {
     // Actualizar la referencia global a los íconos
     elements = Array.from(contenedor.children);
 }
+
+// Evento beforeunload: se dispara antes de que la pestaña se cierre o se recargue
+window.addEventListener("beforeunload", function (e) {
+    if (UnsavedChanges) {
+        // Previene el cierre sin aviso
+        e.preventDefault();
+        // La especificación actual no permite modificar el texto mostrado por el navegador.
+        // Basta con asignar un valor vacío a returnValue.
+        e.returnValue = '';
+    }
+});
 
