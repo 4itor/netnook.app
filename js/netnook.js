@@ -353,7 +353,8 @@ function loadCatalogFromLocal() {
 async function handlePaste() {
     const clipboardText = await navigator.clipboard.readText();
     enableSearchMode();
-    filterText += clipboardText;
+    filterText = filterText.slice(0, cursorPos) + clipboardText + filterText.slice(cursorPos);
+    cursorPos += clipboardText.length;
     actualizarFiltro();
 }
 
