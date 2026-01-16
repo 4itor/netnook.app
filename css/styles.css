@@ -22,6 +22,10 @@ body {
     color: var(--palette-foreground);
     font-family: monospace;
     font-size: 16pt;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .prompt {
