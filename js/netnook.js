@@ -644,6 +644,26 @@ saveEditButton.addEventListener('click', () => {
 
 cancelEditButton.addEventListener('click', closeEditDialog);
 
+// Extraer clases cuando se pega código HTML de FontAwesome
+document.getElementById('editIcon').addEventListener('paste', function(event) {
+    event.preventDefault();
+    
+    // Obtener el texto pegado del portapapeles
+    const pastedText = (event.clipboardData || window.clipboardData).getData('text');
+    
+    // Regex para detectar el formato <i class="..."></i>
+    const regex = /<i\s+class=["']([^"']+)["'][^>]*><\/i>/i;
+    const match = pastedText.match(regex);
+    
+    if (match && match[1]) {
+        // Si coincide el formato, extraer solo las clases
+        this.value = match[1];
+    } else {
+        // Si no coincide, pegar el texto tal cual
+        this.value = pastedText;
+    }
+});
+
 function closeEditDialog() {
     isEditDialogOpen = false;
     editDialog.classList.add('hidden');
