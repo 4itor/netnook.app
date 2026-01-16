@@ -567,7 +567,7 @@ document.addEventListener('keydown', (e) => {
         if (!isSearchMode && (selectedPos !== null)) {
             do {
                 selectedPos = (selectedPos + 1) % elements.length;
-            } while (elements[selectedPos].classList.contains('discarded'));
+            } while (elements[selectedPos].classList.contains('discarded') || elements[selectedPos].classList.contains('separator'));
             destacarSeleccionado();
         }
     } else if ((e.key === 'Tab') && (e.shiftKey)) {
@@ -575,7 +575,7 @@ document.addEventListener('keydown', (e) => {
         if (!isSearchMode && (selectedPos !== null)) {
             do {
                 selectedPos = (selectedPos - 1 + elements.length) % elements.length;
-            } while (elements[selectedPos].classList.contains('discarded'));
+            } while (elements[selectedPos].classList.contains('discarded') || elements[selectedPos].classList.contains('separator'));
             destacarSeleccionado();
         }
     }
@@ -647,14 +647,14 @@ cancelEditButton.addEventListener('click', closeEditDialog);
 // Extraer clases cuando se pega código HTML de FontAwesome
 document.getElementById('editIcon').addEventListener('paste', function(event) {
     event.preventDefault();
-    
+
     // Obtener el texto pegado del portapapeles
     const pastedText = (event.clipboardData || window.clipboardData).getData('text');
-    
+
     // Regex para detectar el formato <i class="..."></i>
     const regex = /<i\s+class=["']([^"']+)["'][^>]*><\/i>/i;
     const match = pastedText.match(regex);
-    
+
     if (match && match[1]) {
         // Si coincide el formato, extraer solo las clases
         this.value = match[1];
