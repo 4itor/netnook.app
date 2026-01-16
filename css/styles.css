@@ -131,6 +131,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .separator {
@@ -141,6 +145,10 @@ body {
     color: var(--palette-separator-label);
     width: 100%;
     margin: 5px 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .separator::before {
