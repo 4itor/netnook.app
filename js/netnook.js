@@ -24,9 +24,9 @@ const contenedor = document.getElementById('icons');
 // Allowed Ctrl keys
 const managedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
 
-// Url detection RegEx
+// Url and IPv4 detection RegEx
 const dominioRegex = new RegExp(
-    `^(?:[a-z0-9]+\\.)*[a-z0-9]+\\.[a-z]{2,63}(?::\\d{1,5})?(?:/.*)?$`, "i"
+    `^(?:(?:[a-z0-9]+\\.)*[a-z0-9]+\\.[a-z]{2,63}|\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})(?::\\d{1,5})?(?:/.*)?$`, "i"
 );
 
 // Carga de catalogo desde almacenamiento local del navegador
