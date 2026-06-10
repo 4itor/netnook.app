@@ -10,6 +10,7 @@ It is a static open source site that runs fully in the browser.
 ## Main features
 
 - Fast keyboard-first search/filter experience
+- Real-time filtering while typing: links are narrowed to those containing the typed characters
 - URL detection and direct open mode
 - Edit mode to reorder, add, edit, and delete bookmarks and separators
 - In-app help popup (question icon or ? key)

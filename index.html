@@ -23,23 +23,46 @@
             <h2>Netnook.app Help</h2>
             <button id="closeHelpDialog" type="button" aria-label="Close help">&times;</button>
         </div>
-        <p>Netnook.app is a custom new page launcher focused on privacy and speed dialing.</p>
-        <p>It is based on just an <a href="https://github.com/4itor/netnook.app" target="_blank">open source</a> static page, hosted on github pages.</p>
-        <p>All information is stored local-only (offline) on the user's browser. Remember to backup your bookmarks (can be exported and downloaded in a simple json format)</p>
-        <p>Tip: press F2 to toggle edit mode.</p>
-        <br>
-        <p>There is a companion <a href="https://chromewebstore.google.com/detail/netnookapp/ajbikbmkmomhaejnednanjbhoihinapp" target="_blank">chrome extension</a> to use netnook.app as a new tabpage automatically.</p>
-        <p></p>
+        <p>Netnook.app is a lightweight, privacy-first speed dial and launcher.</p>
+        <p>It is a fully browser-based, <a href="https://github.com/4itor/netnook.app" target="_blank">open source</a> static site.</p>
+        <p>Companion <a href="https://chromewebstore.google.com/detail/netnookapp/ajbikbmkmomhaejnednanjbhoihinapp" target="_blank">Chrome extension</a> is available to set Netnook.app as your new tab page.</p>
+
+        <h3>Features</h3>
+        <ul>
+            <li>Fast keyboard-first search and filter.</li>
+            <li>As you type, links are filtered in real time to those containing the entered characters.</li>
+            <li>URL detection and direct open mode from the search prompt.</li>
+            <li>Edit mode to reorder, add, edit, and delete links and separators.</li>
+            <li>Import and export bookmarks as JSON backups.</li>
+        </ul>
+
+        <h3>Privacy and behavior</h3>
+        <ul>
+            <li>All data is stored locally in your browser (localStorage only).</li>
+            <li>User must use the Download option to export a backup JSON file (from the edit mode menu).</li>
+            <li>Backups can be loaded manually to sync with other desktops/browsers.</li>
+        </ul>
+
+        <h3>Keyboard shortcuts</h3>
+        <ul>
+            <li><strong class="helpKey">/</strong> open search mode.</li>
+            <li><strong class="helpKey">Enter</strong> open selected bookmark or run search.</li>
+            <li><strong class="helpKey">Esc</strong> clear filter or close current context.</li>
+            <li><strong class="helpKey">?</strong> open or close this help popup.</li>
+            <li><strong class="helpKey">F2</strong> toggle edit mode.</li>
+        </ul>
     </div>
     <!-- Edit mode -->
     <i id="settingsIcon" class="fas fa-wrench"></i>
     <div id="editModeHint" class="editElement">
-        Click to select link or separator<br>
-        ~ E to edit<br>
-        ~ Cursors (or wasd) to move<br>
-        ~ N to add link after selected<br>
-        ~ M add separator after<br>
-        ~ X to delete
+        <ul>
+            <li>Click to select link or separator.</li>
+            <li><strong class="helpKey">E</strong> to edit the selected element.</li>
+            <li>Arrow keys (or <strong class="helpKey">W</strong>, <strong class="helpKey">A</strong>, <strong class="helpKey">S</strong>, <strong class="helpKey">D</strong>) to move.</li>
+            <li><strong class="helpKey">N</strong> add a new link after selected.</li>
+            <li><strong class="helpKey">M</strong> add a separator after selected.</li>
+            <li><strong class="helpKey">X</strong> to delete the selected.</li>
+        </ul>
     </div>
     <div id="downloadMenu" class="editElement">Download <i class="fas fa-download"></i></div>
     <div id="uploadMenu" class="editElement">Upload <i class="fas fa-upload"></i></div>
@@ -66,7 +89,7 @@
             </div>
         </form>
     </div>
-    <div id="versiontag">v2026.24.a</div>
+    <div id="versiontag">v2026.24.b</div>
     <!-- javascript -->
     <script src="data/bookmarks.js"></script>
     <script src="js/netnook.js"></script>
