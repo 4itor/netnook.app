@@ -331,6 +331,11 @@ body {
     color: var(--palette-editmode-selected);
 }
 
+html.edit-mode #helpIcon {
+    visibility: hidden;
+    pointer-events: none;
+}
+
 #versiontag {
     position: fixed;
     bottom: 5px;
@@ -338,6 +343,11 @@ body {
     padding: 10px;
     font-size: 8pt;
     color: var(--palette-dimmed);
+}
+
+html.edit-mode #versiontag,
+html.help-open #versiontag {
+    visibility: hidden;
 }
 
 html.edit-mode::before {

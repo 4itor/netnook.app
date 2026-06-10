@@ -309,15 +309,47 @@ function UpdateCursorPos() {
 }
 
 function openHelpPage() {
+    if (isEditMode || isEditDialogOpen) {
+        return;
+    }
     isHelpDialogOpen = true;
     helpDialog.classList.remove('hidden');
+    document.documentElement.classList.add('help-open');
     updateBackgroundOverlayVisibility();
 }
 
 function closeHelpDialog() {
     isHelpDialogOpen = false;
     helpDialog.classList.add('hidden');
+    document.documentElement.classList.remove('help-open');
     updateBackgroundOverlayVisibility();
+}
+
+function setEditMode(enabled) {
+    isEditMode = enabled;
+
+    if (isEditMode) {
+        filterText = '';
+        if (isSearchMode) {
+            disableSearchMode();
+        }
+        if (isHelpDialogOpen) {
+            closeHelpDialog();
+        }
+        actualizarFiltro();
+        document.documentElement.classList.add('edit-mode'); // Activa la clase en <html>
+        console.log('Modo edición activado');
+    } else {
+        if (isEditDialogOpen) {
+            closeEditDialog();
+        }
+        selectedPos = null;
+        destacarSeleccionado();
+        saveCatalogToLocal(catalogToUse); // Guarda el catálogo en el almacenamiento local
+        UnsavedChanges = false;
+        document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
+        console.log('Modo edición desactivado');
+    }
 }
 
 //--- Functions for Download/Upload the Catalog
@@ -387,6 +419,16 @@ document.getElementById('uploadMenu').addEventListener('click', uploadSettings);
 
 // Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
+    // Alternar modo edición con F2 desde cualquier estado
+    if (e.key === 'F2') {
+        e.preventDefault();
+        if (isHelpDialogOpen) {
+            closeHelpDialog();
+        }
+        setEditMode(!isEditMode);
+        return;
+    }
+
     if (isHelpDialogOpen) {
         if (e.key === 'Escape' || e.key === '?') {
             e.preventDefault();
@@ -413,7 +455,7 @@ document.addEventListener('keydown', (e) => {
         selection.removeAllRanges();
     }
 
-    if (e.key === '?') {
+    if (e.key === '?' && !isEditMode) {
         e.preventDefault();
         openHelpPage();
         return;
@@ -629,24 +671,7 @@ settingsIcon.addEventListener('click', () => {
         return;
     }
 
-    isEditMode = !isEditMode;
-
-    if (isEditMode) {
-        filterText = '';
-        if (isSearchMode) {
-            disableSearchMode();
-        }
-        actualizarFiltro();
-        document.documentElement.classList.add('edit-mode'); // Activa la clase en <html>
-        console.log('Modo edición activado');
-    } else {
-        selectedPos = null;
-        destacarSeleccionado();
-        saveCatalogToLocal(catalogToUse); // Guarda el catálogo en el almacenamiento local
-        UnsavedChanges = false;
-        document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
-        console.log('Modo edición desactivado');
-    }
+    setEditMode(!isEditMode);
 });
 
 function openEditDialog() {
