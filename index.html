@@ -17,6 +17,18 @@
     <div id="backgroundOverlay"></div>
     <div id="filtro" class="prompt"></div>
     <div id="icons" class="container"></div>
+    <i id="helpIcon" class="fas fa-circle-question"></i>
+    <div id="helpDialog" class="hidden">
+        <div class="helpDialogHeader">
+            <h2>Netnook.app Help</h2>
+            <button id="closeHelpDialog" type="button" aria-label="Close help">&times;</button>
+        </div>
+        <p>Netnook.app is a custom new page launcher focused on privacy and speed dialing.</p>
+        <p>Netnook.app is just an open source static site, hosted on github pages.</p>
+        <p>All information is stored local-only (offline) on the user's browser. Remember to backup your bookmarks (can be exported and downloaded in a simple json format)</p>
+        <p>There is a companion <a href="https://chromewebstore.google.com/detail/netnookapp/ajbikbmkmomhaejnednanjbhoihinapp" target="_blank">chrome extension</a> to use netnook.app as a new tabpage automatically.</p>
+        <p></p>
+    </div>
     <!-- Edit mode -->
     <i id="settingsIcon" class="fas fa-wrench"></i>
     <div id="editModeHint" class="editElement">
@@ -52,7 +64,7 @@
             </div>
         </form>
     </div>
-    <div id="versiontag">v26.03.f</div>
+    <div id="versiontag">v2026.24.a</div>
     <!-- javascript -->
     <script src="data/bookmarks.js"></script>
     <script src="js/netnook.js"></script>

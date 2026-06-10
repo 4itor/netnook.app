@@ -7,12 +7,16 @@ let filterText = '';
 let cursorPos = 0;
 let isEditMode = false;
 let isEditDialogOpen = false;
+let isHelpDialogOpen = false;
 let editTarget = null;
 let UnsavedChanges = false;
 
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
 const filtroDisplay = document.getElementById('filtro');
+const helpIcon = document.getElementById('helpIcon');
+const helpDialog = document.getElementById('helpDialog');
+const closeHelpDialogButton = document.getElementById('closeHelpDialog');
 const settingsIcon = document.getElementById('settingsIcon');
 const editDialog = document.getElementById('editDialog');
 const editForm = document.getElementById('editForm');
@@ -255,12 +259,16 @@ function updateFilterDisplay() {
     }
 }
 
+function updateBackgroundOverlayVisibility() {
+    searchBackground.style.visibility = (isSearchMode || isHelpDialogOpen) ? 'visible' : 'hidden';
+}
+
 // Activa el modo de búsqueda
 function enableSearchMode() {
     isSearchMode = true;
     updateUrlColor();
     filtroDisplay.classList.add('search-modal');
-    searchBackground.style.visibility = 'visible';
+    updateBackgroundOverlayVisibility();
     updateFilterDisplay();
 }
 
@@ -270,7 +278,7 @@ function disableSearchMode() {
     isAutoSeachMode = false;
     filtroDisplay.classList.remove('search-modal');
     filtroDisplay.classList.remove('valid-url');
-    searchBackground.style.visibility = 'hidden';
+    updateBackgroundOverlayVisibility();
     updateFilterDisplay();
 }
 
@@ -298,6 +306,18 @@ function updateUrlColor() {
 
 function UpdateCursorPos() {
     filtroDisplay.style.setProperty('--char-count', cursorPos);
+}
+
+function openHelpPage() {
+    isHelpDialogOpen = true;
+    helpDialog.classList.remove('hidden');
+    updateBackgroundOverlayVisibility();
+}
+
+function closeHelpDialog() {
+    isHelpDialogOpen = false;
+    helpDialog.classList.add('hidden');
+    updateBackgroundOverlayVisibility();
 }
 
 //--- Functions for Download/Upload the Catalog
@@ -367,6 +387,14 @@ document.getElementById('uploadMenu').addEventListener('click', uploadSettings);
 
 // Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
+    if (isHelpDialogOpen) {
+        if (e.key === 'Escape' || e.key === '?') {
+            e.preventDefault();
+            closeHelpDialog();
+        }
+        return;
+    }
+
     // Si tenemos abierto el dialogo de edición, no interceptar el uso de teclado
     if (isEditDialogOpen) {
         if (selectedPos !== null) {
@@ -383,6 +411,12 @@ document.addEventListener('keydown', (e) => {
     const selection = window.getSelection();
     if (selection) {
         selection.removeAllRanges();
+    }
+
+    if (e.key === '?') {
+        e.preventDefault();
+        openHelpPage();
+        return;
     }
 
     // Gestion de teclas en modo edicion
@@ -578,6 +612,14 @@ document.addEventListener('keydown', (e) => {
             } while (elements[selectedPos].classList.contains('discarded') || elements[selectedPos].classList.contains('separator'));
             destacarSeleccionado();
         }
+    }
+});
+
+helpIcon.addEventListener('click', openHelpPage);
+closeHelpDialogButton.addEventListener('click', closeHelpDialog);
+searchBackground.addEventListener('click', () => {
+    if (isHelpDialogOpen) {
+        closeHelpDialog();
     }
 });
 

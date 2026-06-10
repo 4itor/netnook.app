@@ -238,6 +238,87 @@ body {
     font-size: 20pt;
 }
 
+#helpIcon {
+    position: fixed;
+    bottom: 5px;
+    left: 5px;
+    padding: 10px;
+    z-index: 1;
+    color: var(--palette-dimmed);
+    cursor: pointer;
+    font-size: 20pt;
+}
+
+#helpIcon:hover {
+    color: var(--palette-foreground);
+}
+
+#helpDialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(90vw, 1000px);
+    max-height: 85vh;
+    overflow-y: auto;
+    background-color: var(--palette-dialog);
+    color: var(--palette-foreground);
+    border: 1px solid var(--palette-separator-line);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 1000;
+}
+
+#helpDialog.hidden {
+    visibility: hidden;
+}
+
+#helpDialog h2 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+#helpDialog p {
+    margin: 12px 0;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+#helpDialog a,
+#helpDialog a:visited {
+    color: #60db60;
+    text-decoration: none;
+}
+
+#helpDialog a:hover,
+#helpDialog a:focus {
+    color: #43a543;
+    text-decoration: none;
+}
+
+.helpDialogHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#closeHelpDialog {
+    font-family: monospace;
+    font-size: 20pt;
+    line-height: 1;
+    border: none;
+    background: transparent;
+    color: var(--palette-foreground);
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+#closeHelpDialog:hover {
+    color: var(--palette-editmode-selected);
+}
+
 #settingsIcon:hover {
     color: var(--palette-foreground);
 }
@@ -252,8 +333,8 @@ body {
 
 #versiontag {
     position: fixed;
-    bottom: 0;
-    left: 5px;
+    bottom: 5px;
+    left: 52px;
     padding: 10px;
     font-size: 8pt;
     color: var(--palette-dimmed);
