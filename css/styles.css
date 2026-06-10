@@ -246,7 +246,7 @@ body {
     z-index: 1;
     color: var(--palette-dimmed);
     cursor: pointer;
-    font-size: 20pt;
+    font-size: 24pt;
 }
 
 #helpIcon:hover {
