@@ -287,13 +287,13 @@ body {
 
 #helpDialog a,
 #helpDialog a:visited {
-    color: #60db60;
+    color: var(--palette-editmode);
     text-decoration: none;
 }
 
 #helpDialog a:hover,
 #helpDialog a:focus {
-    color: #43a543;
+    color: var(--palette-editmode-selected);
     text-decoration: none;
 }
 
