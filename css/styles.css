@@ -339,7 +339,8 @@ html.edit-mode #helpIcon {
 #versiontag {
     position: fixed;
     bottom: 5px;
-    left: 52px;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 10px;
     font-size: 8pt;
     color: var(--palette-dimmed);
