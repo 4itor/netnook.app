@@ -52,6 +52,12 @@ It is a static open source site that runs fully in the browser.
 
 Open index.html in a browser, or serve the folder with any static file server.
 
+Example using Python, on the project root folder:
+
+```sh
+py -m http.server 8000
+```
+
 ## Project structure
 
 - index.html: main page and dialogs

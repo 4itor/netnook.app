@@ -402,6 +402,7 @@ html.edit-mode #helpIcon {
     padding: 10px;
     font-size: 8pt;
     color: var(--palette-dimmed);
+    z-index: -1;
 }
 
 html.edit-mode #versiontag,
