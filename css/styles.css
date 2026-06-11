@@ -405,6 +405,18 @@ html.edit-mode #helpIcon {
     z-index: -1;
 }
 
+#versiontag a,
+#versiontag a:visited {
+    color: var(--palette-dimmed);
+    text-decoration: none;
+}
+
+#versiontag a:hover,
+#versiontag a:focus {
+    color: var(--palette-foreground);
+    text-decoration: none;
+}
+
 html.edit-mode #versiontag,
 html.help-open #versiontag {
     visibility: hidden;
