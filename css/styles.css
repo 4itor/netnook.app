@@ -358,8 +358,16 @@ body {
 .helpDialogHeader {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 10px;
+    position: relative;
+}
+
+.helpDialogDivider {
+    border: 0;
+    border-top: 1px solid var(--palette-separator-line);
+    opacity: 0.8;
+    margin: 10px 0 14px;
 }
 
 #closeHelpDialog {
@@ -371,6 +379,10 @@ body {
     color: var(--palette-foreground);
     cursor: pointer;
     padding: 0 8px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 #closeHelpDialog:hover {

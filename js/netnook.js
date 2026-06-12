@@ -8,6 +8,7 @@ let cursorPos = 0;
 let isEditMode = false;
 let isEditDialogOpen = false;
 let isHelpDialogOpen = false;
+let isFilterBarVisible = false;
 let editTarget = null;
 let UnsavedChanges = false;
 
@@ -251,12 +252,14 @@ function googleSearch() {
 function updateFilterDisplay() {
     // Actualiza el contenido del filtro con el cursor
     filtroDisplay.innerHTML = filterText.slice(0, cursorPos) + '\u200B<span id="cursor"></span>\u200B' + filterText.slice(cursorPos);
+
+    isFilterBarVisible = isSearchMode || Boolean(filterText);
+
     if (isSearchMode) {
         updateUrlColor();
-        filtroDisplay.style.visibility = 'visible';
-    } else {
-        filtroDisplay.style.visibility = filterText ? 'visible' : 'hidden';
     }
+
+    filtroDisplay.style.visibility = isFilterBarVisible ? 'visible' : 'hidden';
 }
 
 function updateBackgroundOverlayVisibility() {
@@ -459,7 +462,7 @@ document.addEventListener('keydown', (e) => {
         selection.removeAllRanges();
     }
 
-    if (e.key === '?' && !isEditMode && filterText === '') {
+    if (e.key === '?' && !isEditMode && !(isSearchMode || isFilterBarVisible)) {
         e.preventDefault();
         openHelpPage();
         return;
