@@ -309,6 +309,11 @@ function UpdateCursorPos() {
 }
 
 function openHelpPage() {
+    if (isHelpDialogOpen) {
+        closeHelpDialog();
+        return;
+    }
+
     if (isEditMode || isEditDialogOpen) {
         return;
     }
