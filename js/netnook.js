@@ -417,7 +417,6 @@ document.getElementById('uploadMenu').addEventListener('click', uploadSettings);
 
 //--- Event Listeners
 
-// Evento de teclado modificado para activar la ventana de búsqueda con '/'
 document.addEventListener('keydown', (e) => {
     // Alternar modo edición con F2 desde cualquier estado
     if (e.key === 'F2') {
@@ -455,7 +454,7 @@ document.addEventListener('keydown', (e) => {
         selection.removeAllRanges();
     }
 
-    if (e.key === '?' && !isEditMode) {
+    if (e.key === '?' && !isEditMode && filterText === '') {
         e.preventDefault();
         openHelpPage();
         return;
