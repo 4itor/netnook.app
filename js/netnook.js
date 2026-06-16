@@ -501,6 +501,11 @@ document.addEventListener('keydown', (e) => {
                 e.preventDefault();
                 console.log('down');
                 moverElemento(selectedPos, 'down');
+            } else if (e.key === 'c') {
+                // Duplicar el elemento seleccionado
+                e.preventDefault();
+                console.log('duplicate');
+                duplicateElement();
             } else if (e.key === 'n') {
                 // Añadir un nuevo elemento
                 e.preventDefault();
@@ -791,6 +796,28 @@ function eliminarElemento() {
     actualizarVista();
     selectedPos = null;
     destacarSeleccionado();
+}
+
+function duplicateElement() {
+    if (selectedPos === null) return;
+    const source = catalogToUse[selectedPos];
+    const copyName = buildCopyName(source.name);
+    addNewElement(source.addr, copyName, source.icon);
+    // Para separadores, addNewElement no abre el diálogo; forzarlo aquí
+    if (source.addr === 'separator') {
+        openEditDialog();
+    }
+}
+
+function buildCopyName(name) {
+    const copyNRegex = /^(.*)\(copy(?: (\d+))?\)$/;
+    const match = name.match(copyNRegex);
+    if (!match) {
+        return name + ' (copy)';
+    }
+    const base = match[1];
+    const n = match[2] ? parseInt(match[2], 10) : 1;
+    return base + '(copy ' + (n + 1) + ')';
 }
 
 function addNewElement(newAddr, newName, newIcon) {
