@@ -470,6 +470,16 @@ document.addEventListener('keydown', (e) => {
 
     // Gestion de teclas en modo edicion
     if (isEditMode) {
+        if (e.key === 'F3') {
+            e.preventDefault();
+            uploadSettings();
+            return;
+        } else if (e.key === 'F4') {
+            e.preventDefault();
+            downloadSettings();
+            return;
+        }
+
         if (selectedPos !== null) {
 
             if (e.key === 'Escape') {

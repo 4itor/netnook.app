@@ -303,7 +303,9 @@ body {
 }
 
 #helpDialog .helpKey,
-#editModeHint .helpKey {
+#editModeHint .helpKey,
+#downloadMenu .helpKey,
+#uploadMenu .helpKey {
     display: inline-block;
     position: relative;
     padding: 1px 8px;
@@ -322,8 +324,15 @@ body {
     color: #ffd29b;
 }
 
+#downloadMenu .helpKey,
+#uploadMenu .helpKey {
+    color: #ffd29b;
+}
+
 #helpDialog .helpKey::before,
-#editModeHint .helpKey::before {
+#editModeHint .helpKey::before,
+#downloadMenu .helpKey::before,
+#uploadMenu .helpKey::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -339,6 +348,12 @@ body {
 }
 
 #editModeHint .helpKey::before {
+    border: 1px solid #d29a57;
+    background-color: #6a4a28;
+}
+
+#downloadMenu .helpKey::before,
+#uploadMenu .helpKey::before {
     border: 1px solid #d29a57;
     background-color: #6a4a28;
 }
