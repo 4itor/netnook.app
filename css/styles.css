@@ -302,11 +302,7 @@ body {
     font-size: 0.95em;
 }
 
-#helpDialog .helpKey,
-#editModeHint .helpKey,
-#downloadMenu .helpKey,
-#uploadMenu .helpKey,
-#searchEngineMenu .helpKey {
+.helpKey {
     display: inline-block;
     position: relative;
     padding: 1px 8px;
@@ -317,25 +313,15 @@ body {
     z-index: 0;
 }
 
-#helpDialog .helpKey {
+.keyTheme-main .helpKey {
     color: var(--palette-foreground);
 }
 
-#editModeHint .helpKey {
+.keyTheme-edit .helpKey {
     color: #ffd29b;
 }
 
-#downloadMenu .helpKey,
-#uploadMenu .helpKey,
-#searchEngineMenu .helpKey {
-    color: #ffd29b;
-}
-
-#helpDialog .helpKey::before,
-#editModeHint .helpKey::before,
-#downloadMenu .helpKey::before,
-#uploadMenu .helpKey::before,
-#searchEngineMenu .helpKey::before {
+.helpKey::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -345,19 +331,12 @@ body {
     z-index: -1;
 }
 
-#helpDialog .helpKey::before {
+.keyTheme-main .helpKey::before {
     border: 1px solid #5a5a5a;
     background-color: #3a3a3a;
 }
 
-#editModeHint .helpKey::before {
-    border: 1px solid #d29a57;
-    background-color: #6a4a28;
-}
-
-#downloadMenu .helpKey::before,
-#uploadMenu .helpKey::before,
-#searchEngineMenu .helpKey::before {
+.keyTheme-edit .helpKey::before {
     border: 1px solid #d29a57;
     background-color: #6a4a28;
 }
@@ -466,48 +445,35 @@ html.edit-mode::before {
     box-sizing: border-box;
 }
 
-#editDialog {
+.modal-dialog {
     position: fixed;
-    /* Fijo, para que siempre esté centrado en la pantalla */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* Centramos el modal */
     width: 90%;
-    /* Ocupa el 90% del ancho de la pantalla */
     max-width: 800px;
-    /* Máximo ancho para pantallas grandes */
     background-color: var(--palette-dialog);
-    /* Fondo del modal */
     color: var(--palette-foreground);
-    /* Texto del modal */
     border: 1px solid var(--palette-separator-line);
-    /* Borde */
     border-radius: 8px;
-    /* Bordes redondeados */
     padding: 20px;
-    /* Espaciado interno */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    /* Sombra para resaltar */
     z-index: 1000;
-    /* Aparece encima de otros elementos */
 }
 
-#editDialog.hidden {
+.modal-dialog.hidden {
     visibility: hidden;
 }
 
-#editDialog form {
+.modal-dialog form {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    /* Espaciado entre las filas del formulario */
     align-items: flex-start;
-    /* Alinea los elementos a la izquierda */
     width: 100%;
 }
 
-#editDialog .form-group {
+.modal-dialog .form-group {
     display: flex;
     align-items: center;
     width: 100%;
@@ -517,15 +483,12 @@ html.edit-mode::before {
     display: none !important;
 }
 
-#editDialog label {
+.modal-dialog label {
     font-family: monospace;
     font-size: 14pt;
     width: 20%;
-    /* El label ocupa el 25% del ancho */
     text-align: right;
-    /* Alineación a la derecha */
     margin-right: 15px;
-    /* Espaciado entre el label y el input */
     color: var(--palette-foreground);
 }
 
@@ -533,11 +496,11 @@ html.edit-mode::before {
     color: var(--palette-foreground);
 }
 
-#editDialog input {
+.modal-dialog input,
+.modal-dialog textarea {
     font-family: monospace;
     font-size: 14pt;
     flex: 1;
-    /* El input ocupa el espacio restante */
     padding: 10px;
     border: 1px solid var(--palette-separator-line);
     border-radius: 5px;
@@ -545,24 +508,22 @@ html.edit-mode::before {
     color: var(--palette-foreground);
 }
 
-#editDialog input:focus {
+.modal-dialog input:focus,
+.modal-dialog textarea:focus {
     outline: 2px solid var(--palette-selector);
 }
 
-#editDialog .form-buttons {
+.modal-dialog .form-buttons {
     display: flex;
     justify-content: flex-end;
-    /* Alinea los botones al final */
     gap: 15px;
-    /* Espaciado entre botones */
     width: 100%;
 }
 
-#editDialog button {
+.modal-dialog button {
     font-family: monospace;
     font-size: 14pt;
     padding: 8px 16px;
-    /* Ajusta el espaciado interno */
     border: none;
     border-radius: 5px;
     background-color: var(--palette-searchbar);
@@ -571,64 +532,9 @@ html.edit-mode::before {
     transition: background-color 0.3s ease;
 }
 
-#editDialog button:hover {
+.modal-dialog button:hover {
     background-color: var(--palette-selector);
     color: var(--palette-background);
-}
-
-#searchEngineDialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 800px;
-    background-color: var(--palette-dialog);
-    color: var(--palette-foreground);
-    border: 1px solid var(--palette-separator-line);
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-}
-
-#searchEngineDialog.hidden {
-    visibility: hidden;
-}
-
-#searchEngineDialog form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: flex-start;
-    width: 100%;
-}
-
-#searchEngineDialog .form-group {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-#searchEngineDialog label {
-    font-family: monospace;
-    font-size: 14pt;
-    width: 20%;
-    text-align: right;
-    margin-right: 15px;
-    color: var(--palette-foreground);
-}
-
-#searchEngineDialog input,
-#searchEngineDialog textarea {
-    font-family: monospace;
-    font-size: 14pt;
-    flex: 1;
-    padding: 10px;
-    border: 1px solid var(--palette-separator-line);
-    border-radius: 5px;
-    background-color: var(--palette-background);
-    color: var(--palette-foreground);
 }
 
 #searchEngineDialog textarea {
@@ -703,29 +609,6 @@ html.edit-mode::before {
     color: var(--palette-foreground);
 }
 
-#searchEngineDialog .form-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    width: 100%;
-}
-
-#searchEngineDialog button {
-    font-family: monospace;
-    font-size: 14pt;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 5px;
-    background-color: var(--palette-searchbar);
-    color: var(--palette-searchbar-label);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#searchEngineDialog button:hover {
-    background-color: var(--palette-selector);
-    color: var(--palette-background);
-}
 
 /* Textos y menus de modo edicion */
 

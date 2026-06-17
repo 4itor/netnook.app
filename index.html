@@ -18,7 +18,7 @@
     <div id="filtro" class="prompt"></div>
     <div id="icons" class="container"></div>
     <i id="helpIcon" class="fa-regular fa-circle-question"></i>
-    <div id="helpDialog" class="hidden">
+    <div id="helpDialog" class="hidden keyTheme-main">
         <div class="helpDialogHeader">
             <h2>Help</h2>
             <button id="closeHelpDialog" type="button" aria-label="Close help">&times;</button>
@@ -55,7 +55,7 @@
     </div>
     <!-- Edit mode -->
     <i id="settingsIcon" class="fas fa-wrench"></i>
-    <div id="editModeHint" class="editElement">
+    <div id="editModeHint" class="editElement keyTheme-edit">
         <ul>
             <li>Click to select link or separator.</li>
             <li><strong class="helpKey">E</strong> to edit the selected element.</li>
@@ -67,11 +67,11 @@
             <li><strong class="helpKey">F2</strong> exit edit mode.</li>
         </ul>
     </div>
-    <div id="downloadMenu" class="editElement"><strong class="helpKey">F4</strong> Download <i class="fas fa-download"></i></div>
-    <div id="uploadMenu" class="editElement"><strong class="helpKey">F3</strong> Upload <i class="fas fa-upload"></i></div>
-    <div id="searchEngineMenu" class="editElement"><strong class="helpKey">F9</strong> Search Engine <i class="fas fa-magnifying-glass"></i></div>
+    <div id="downloadMenu" class="editElement keyTheme-edit"><strong class="helpKey">F4</strong> Download <i class="fas fa-download"></i></div>
+    <div id="uploadMenu" class="editElement keyTheme-edit"><strong class="helpKey">F3</strong> Upload <i class="fas fa-upload"></i></div>
+    <div id="searchEngineMenu" class="editElement keyTheme-edit"><strong class="helpKey">F9</strong> Search Engine <i class="fas fa-magnifying-glass"></i></div>
     <!-- Popup Edit -->
-    <div id="editDialog" class="hidden">
+    <div id="editDialog" class="hidden modal-dialog">
         <form id="editForm">
             <div class="form-group">
                 <label for="editName">Name</label>
@@ -93,7 +93,7 @@
             </div>
         </form>
     </div>
-    <div id="searchEngineDialog" class="hidden">
+    <div id="searchEngineDialog" class="hidden modal-dialog">
         <form id="searchEngineForm">
             <div class="form-group">
                 <label>Name</label>
