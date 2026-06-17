@@ -43,11 +43,6 @@ It is a static open source site that runs fully in the browser.
 - M : add separator after selected
 - X : delete selected item
 
-## Help and edit mode behavior
-
-- Help popup and edit mode are mutually exclusive
-- While edit mode is active, help icon and help shortcut are disabled
-
 ## Run locally
 
 Open index.html in a browser, or serve the folder with any static file server.
