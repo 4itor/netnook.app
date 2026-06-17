@@ -62,7 +62,7 @@ body {
 }
 
 .prompt.search-modal::before {
-    content: 'Search';
+    content: attr(data-search-label);
     font-size: 12px;
     color: var(--palette-searchbar-label);
     position: absolute;
@@ -305,7 +305,8 @@ body {
 #helpDialog .helpKey,
 #editModeHint .helpKey,
 #downloadMenu .helpKey,
-#uploadMenu .helpKey {
+#uploadMenu .helpKey,
+#searchEngineMenu .helpKey {
     display: inline-block;
     position: relative;
     padding: 1px 8px;
@@ -325,14 +326,16 @@ body {
 }
 
 #downloadMenu .helpKey,
-#uploadMenu .helpKey {
+#uploadMenu .helpKey,
+#searchEngineMenu .helpKey {
     color: #ffd29b;
 }
 
 #helpDialog .helpKey::before,
 #editModeHint .helpKey::before,
 #downloadMenu .helpKey::before,
-#uploadMenu .helpKey::before {
+#uploadMenu .helpKey::before,
+#searchEngineMenu .helpKey::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -353,7 +356,8 @@ body {
 }
 
 #downloadMenu .helpKey::before,
-#uploadMenu .helpKey::before {
+#uploadMenu .helpKey::before,
+#searchEngineMenu .helpKey::before {
     border: 1px solid #d29a57;
     background-color: #6a4a28;
 }
@@ -572,6 +576,157 @@ html.edit-mode::before {
     color: var(--palette-background);
 }
 
+#searchEngineDialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    background-color: var(--palette-dialog);
+    color: var(--palette-foreground);
+    border: 1px solid var(--palette-separator-line);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+#searchEngineDialog.hidden {
+    visibility: hidden;
+}
+
+#searchEngineDialog form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+#searchEngineDialog .form-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#searchEngineDialog label {
+    font-family: monospace;
+    font-size: 14pt;
+    width: 20%;
+    text-align: right;
+    margin-right: 15px;
+    color: var(--palette-foreground);
+}
+
+#searchEngineDialog input,
+#searchEngineDialog textarea {
+    font-family: monospace;
+    font-size: 14pt;
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--palette-separator-line);
+    border-radius: 5px;
+    background-color: var(--palette-background);
+    color: var(--palette-foreground);
+}
+
+#searchEngineDialog textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+#searchEngineDialog .selection-group {
+    flex-direction: column;
+    align-items: center;
+}
+
+#searchEngineDialog .selection-group label {
+    width: auto;
+    text-align: center;
+    margin-right: 0;
+    margin-bottom: 8px;
+}
+
+#searchEngineDialog .options-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-content: flex-start;
+    gap: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    width: 100%;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+}
+
+#searchEngineDialog .search-engine-option {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin-right: 0;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 999px;
+    border: 1px solid #5a5a5a;
+    background-color: #3a3a3a;
+    color: var(--palette-foreground);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+#searchEngineDialog .search-engine-option:hover {
+    background-color: #4a4a4a;
+    border-color: #7a7a7a;
+}
+
+#searchEngineDialog .search-engine-option input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#searchEngineDialog .search-engine-option-name {
+    font-weight: 700;
+    font-size: 0.9em;
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--palette-foreground);
+}
+
+#searchEngineDialog .search-engine-option input:checked + .search-engine-option-name {
+    background-color: #5a5a5a;
+    color: var(--palette-foreground);
+}
+
+#searchEngineDialog .form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    width: 100%;
+}
+
+#searchEngineDialog button {
+    font-family: monospace;
+    font-size: 14pt;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--palette-searchbar);
+    color: var(--palette-searchbar-label);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#searchEngineDialog button:hover {
+    background-color: var(--palette-selector);
+    color: var(--palette-background);
+}
+
 /* Textos y menus de modo edicion */
 
 .editElement {
@@ -620,13 +775,19 @@ html.edit-mode::before {
 
 /* Edit mode menus */
 #downloadMenu {
-    bottom: 60px;
+    bottom: 100px;
     right: 15px;
     cursor: pointer;
 }
 
 #uploadMenu {
-    bottom: 100px;
+    bottom: 140px;
+    right: 15px;
+    cursor: pointer;
+}
+
+#searchEngineMenu {
+    bottom: 60px;
     right: 15px;
     cursor: pointer;
 }

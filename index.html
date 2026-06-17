@@ -69,6 +69,7 @@
     </div>
     <div id="downloadMenu" class="editElement"><strong class="helpKey">F4</strong> Download <i class="fas fa-download"></i></div>
     <div id="uploadMenu" class="editElement"><strong class="helpKey">F3</strong> Upload <i class="fas fa-upload"></i></div>
+    <div id="searchEngineMenu" class="editElement"><strong class="helpKey">F9</strong> Search Engine <i class="fas fa-magnifying-glass"></i></div>
     <!-- Popup Edit -->
     <div id="editDialog" class="hidden">
         <form id="editForm">
@@ -92,9 +93,30 @@
             </div>
         </form>
     </div>
+    <div id="searchEngineDialog" class="hidden">
+        <form id="searchEngineForm">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="currentSearchEngineName">
+            </div>
+            <div class="form-group textarea-group">
+                <label>Address</label>
+                <textarea id="currentSearchEngineUrl"></textarea>
+            </div>
+            <div class="form-group selection-group">
+                <label>Presets</label>
+                <div id="searchEngineOptions" class="options-list"></div>
+            </div>
+            <div class="form-buttons">
+                <button type="button" id="saveSearchEngine">Save</button>
+                <button type="button" id="cancelSearchEngine">Cancel</button>
+            </div>
+        </form>
+    </div>
     <div id="versiontag"><a href="https://github.com/4itor/netnook.app" target="_blank">v2026.24.c</a></div>
     <!-- javascript -->
     <script src="data/bookmarks.js"></script>
+    <script src="data/search-engines.js"></script>
     <script src="js/netnook.js"></script>
 </body>
 

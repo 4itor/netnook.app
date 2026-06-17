@@ -7,6 +7,7 @@ let filterText = '';
 let cursorPos = 0;
 let isEditMode = false;
 let isEditDialogOpen = false;
+let isSearchEngineDialogOpen = false;
 let isHelpDialogOpen = false;
 let isFilterBarVisible = false;
 let editTarget = null;
@@ -24,7 +25,25 @@ const editForm = document.getElementById('editForm');
 const editFormAddress = document.getElementById('editFormAddress');
 const saveEditButton = document.getElementById('saveEdit');
 const cancelEditButton = document.getElementById('cancelEdit');
+const searchEngineMenu = document.getElementById('searchEngineMenu');
+const searchEngineDialog = document.getElementById('searchEngineDialog');
+const searchEngineOptions = document.getElementById('searchEngineOptions');
+const currentSearchEngineName = document.getElementById('currentSearchEngineName');
+const currentSearchEngineUrl = document.getElementById('currentSearchEngineUrl');
+const saveSearchEngineButton = document.getElementById('saveSearchEngine');
+const cancelSearchEngineButton = document.getElementById('cancelSearchEngine');
 const contenedor = document.getElementById('icons');
+
+const SEARCH_ENGINE_NAME_KEY = 'searchEngineName';
+const SEARCH_ENGINE_URL_KEY = 'searchEngineUrl';
+const SEARCH_QUERY_PLACEHOLDER = '%s';
+const fallbackSearchEngine = {
+    name: 'Google',
+    url: 'https://www.google.com/search?q=%s'
+};
+const searchEngineList = (typeof searchEnginePresets !== 'undefined' && Array.isArray(searchEnginePresets) && searchEnginePresets.length > 0)
+    ? searchEnginePresets
+    : [fallbackSearchEngine];
 
 // Allowed Ctrl keys
 const managedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
@@ -36,6 +55,9 @@ const dominioRegex = new RegExp(
 
 // Carga de catalogo desde almacenamiento local del navegador
 let catalogToUse = loadCatalogFromLocal() || initialCatalog;
+let currentSearchEngine = loadSearchEngineFromLocal() || normalizeSearchEngine(fallbackSearchEngine);
+saveSearchEngineToLocal(currentSearchEngine);
+updateSearchPromptLabel();
 console.log('Bookmark list is ' + catalogToUse.length + ' items long');
 
 // Añadir los iconos al contenedor
@@ -242,9 +264,84 @@ function googleSearch() {
         }
         window.open(filterText, '_self');
     } else {
-        const url = `https://www.google.com/search?q=${encodeURIComponent(filterText)}`;
+        const url = buildSearchUrl(filterText);
         window.open(url, '_self');
     }
+}
+
+function ensureSearchTemplate(url) {
+    const normalizedUrl = String(url || '').trim();
+    if (!normalizedUrl) {
+        return 'https://www.google.com/search?q=' + SEARCH_QUERY_PLACEHOLDER;
+    }
+
+    // Acepta placeholders comunes pegados por el usuario y los normaliza a %s.
+    const placeholderRegex = /%s|%1|\(1\)|\{searchTerms\}|\{query\}|\{\{query\}\}/gi;
+    if (placeholderRegex.test(normalizedUrl)) {
+        return normalizedUrl.replaceAll(placeholderRegex, SEARCH_QUERY_PLACEHOLDER);
+    }
+
+    const separator = normalizedUrl.includes('?') ? '&' : '?';
+    return normalizedUrl + separator + 'q=' + SEARCH_QUERY_PLACEHOLDER;
+}
+
+function normalizeSearchEngine(searchEngine) {
+    const fallback = normalizeSearchEngineFallback();
+    if (!searchEngine || typeof searchEngine !== 'object') {
+        return fallback;
+    }
+
+    const safeName = String(searchEngine.name || '').trim() || fallback.name;
+    const safeUrl = ensureSearchTemplate(searchEngine.url || fallback.url);
+    return {
+        name: safeName,
+        url: safeUrl
+    };
+}
+
+function normalizeSearchEngineFallback() {
+    return {
+        name: fallbackSearchEngine.name,
+        url: fallbackSearchEngine.url
+    };
+}
+
+function loadSearchEngineFromLocal() {
+    const savedName = localStorage.getItem(SEARCH_ENGINE_NAME_KEY);
+    const savedUrl = localStorage.getItem(SEARCH_ENGINE_URL_KEY);
+
+    if (!savedName || !savedUrl) {
+        return null;
+    }
+
+    return normalizeSearchEngine({
+        name: savedName,
+        url: savedUrl
+    });
+}
+
+function saveSearchEngineToLocal(searchEngine) {
+    const normalized = normalizeSearchEngine(searchEngine);
+    localStorage.setItem(SEARCH_ENGINE_NAME_KEY, normalized.name);
+    localStorage.setItem(SEARCH_ENGINE_URL_KEY, normalized.url);
+}
+
+function buildSearchUrl(queryText) {
+    const encodedQuery = encodeURIComponent(queryText);
+    return currentSearchEngine.url.replaceAll(SEARCH_QUERY_PLACEHOLDER, encodedQuery);
+}
+
+function setCurrentSearchEngine(searchEngine, markUnsaved = false) {
+    currentSearchEngine = normalizeSearchEngine(searchEngine);
+    saveSearchEngineToLocal(currentSearchEngine);
+    updateSearchPromptLabel();
+    if (markUnsaved) {
+        UnsavedChanges = true;
+    }
+}
+
+function updateSearchPromptLabel() {
+    filtroDisplay.dataset.searchLabel = 'Search ' + currentSearchEngine.name;
 }
 
 //--- Functions for Filter/Search visualization
@@ -351,6 +448,9 @@ function setEditMode(enabled) {
         if (isEditDialogOpen) {
             closeEditDialog();
         }
+        if (isSearchEngineDialogOpen) {
+            closeSearchEngineDialog();
+        }
         selectedPos = null;
         destacarSeleccionado();
         saveCatalogToLocal(catalogToUse); // Guarda el catálogo en el almacenamiento local
@@ -364,6 +464,7 @@ function setEditMode(enabled) {
 
 function downloadSettings() {
     const data = {
+        searchEngine: currentSearchEngine,
         bookmarks: catalogToUse
     };
 
@@ -392,6 +493,10 @@ function uploadSettings() {
                 catalogToUse = data.bookmarks;
                 populateCatalog(catalogToUse);
             }
+
+            if (data.searchEngine) {
+                setCurrentSearchEngine(data.searchEngine, true);
+            }
         };
         reader.readAsText(file);
     };
@@ -418,10 +523,117 @@ async function handlePaste() {
     actualizarFiltro();
 }
 
+function renderSearchEngineOptions() {
+    searchEngineOptions.innerHTML = '';
+
+    const sortedSearchEngineList = searchEngineList
+        .map((searchEngine, index) => ({
+            searchEngine,
+            index,
+            normalized: normalizeSearchEngine(searchEngine)
+        }))
+        .sort((a, b) => a.normalized.name.localeCompare(b.normalized.name, 'es', { sensitivity: 'base' }));
+
+    sortedSearchEngineList.forEach((entry) => {
+        const normalized = entry.normalized;
+        const optionId = 'searchEngineOption' + entry.index;
+
+        const label = document.createElement('label');
+        label.className = 'search-engine-option';
+        label.setAttribute('for', optionId);
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'selectedSearchEngine';
+        radio.id = optionId;
+        radio.value = entry.index;
+        radio.checked = (normalized.name === currentSearchEngine.name) && (normalized.url === currentSearchEngine.url);
+        radio.addEventListener('change', () => {
+            currentSearchEngineName.value = normalized.name;
+            currentSearchEngineUrl.value = normalized.url;
+        });
+
+        const textContainer = document.createElement('div');
+        textContainer.className = 'search-engine-option-name';
+        textContainer.textContent = normalized.name;
+        label.title = normalized.url;
+        label.appendChild(radio);
+        label.appendChild(textContainer);
+        searchEngineOptions.appendChild(label);
+    });
+
+    syncPresetSelectionFromManualFields();
+}
+
+function syncPresetSelectionFromManualFields() {
+    const typedName = currentSearchEngineName.value.trim();
+    const typedUrl = currentSearchEngineUrl.value.trim();
+
+    const matchingPresetEntry = searchEngineList
+        .map((searchEngine, index) => ({
+            index,
+            normalized: normalizeSearchEngine(searchEngine)
+        }))
+        .find((entry) => {
+            return (entry.normalized.name === typedName) && (entry.normalized.url === typedUrl);
+        });
+
+    const allPresetOptions = document.querySelectorAll('input[name="selectedSearchEngine"]');
+    allPresetOptions.forEach((radio) => {
+        radio.checked = matchingPresetEntry ? (Number(radio.value) === matchingPresetEntry.index) : false;
+    });
+}
+
+function openSearchEngineDialog() {
+    if (!isEditMode || isEditDialogOpen || isSearchEngineDialogOpen) {
+        return;
+    }
+
+    currentSearchEngineName.value = currentSearchEngine.name;
+    currentSearchEngineUrl.value = currentSearchEngine.url;
+    renderSearchEngineOptions();
+
+    isSearchEngineDialogOpen = true;
+    searchEngineDialog.classList.remove('hidden');
+}
+
+function closeSearchEngineDialog() {
+    isSearchEngineDialogOpen = false;
+    searchEngineDialog.classList.add('hidden');
+}
+
+function saveSelectedSearchEngine() {
+    const manualName = currentSearchEngineName.value.trim();
+    const manualUrl = currentSearchEngineUrl.value.trim();
+    const selectedOption = document.querySelector('input[name="selectedSearchEngine"]:checked');
+
+    let searchEngineToSave = null;
+
+    if (manualName || manualUrl) {
+        searchEngineToSave = {
+            name: manualName || currentSearchEngine.name,
+            url: manualUrl || currentSearchEngine.url
+        };
+    } else if (selectedOption) {
+        const selectedPreset = searchEngineList[Number(selectedOption.value)];
+        if (selectedPreset) {
+            searchEngineToSave = selectedPreset;
+        }
+    }
+
+    setCurrentSearchEngine(searchEngineToSave || currentSearchEngine, true);
+    closeSearchEngineDialog();
+}
+
 //--- Events de menu-actions
 
 document.getElementById('downloadMenu').addEventListener('click', downloadSettings);
 document.getElementById('uploadMenu').addEventListener('click', uploadSettings);
+searchEngineMenu.addEventListener('click', openSearchEngineDialog);
+saveSearchEngineButton.addEventListener('click', saveSelectedSearchEngine);
+cancelSearchEngineButton.addEventListener('click', closeSearchEngineDialog);
+currentSearchEngineName.addEventListener('input', syncPresetSelectionFromManualFields);
+currentSearchEngineUrl.addEventListener('input', syncPresetSelectionFromManualFields);
 
 //--- Event Listeners
 
@@ -440,6 +652,17 @@ document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' || e.key === '?') {
             e.preventDefault();
             closeHelpDialog();
+        }
+        return;
+    }
+
+    if (isSearchEngineDialogOpen) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeSearchEngineDialog();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            saveSelectedSearchEngine();
         }
         return;
     }
@@ -477,6 +700,10 @@ document.addEventListener('keydown', (e) => {
         } else if (e.key === 'F4') {
             e.preventDefault();
             downloadSettings();
+            return;
+        } else if (e.key === 'F9') {
+            e.preventDefault();
+            openSearchEngineDialog();
             return;
         }
 
@@ -689,7 +916,7 @@ searchBackground.addEventListener('click', () => {
 
 settingsIcon.addEventListener('click', () => {
     // Si tenemos abierto el dialogo de edición, deshabilitar el icono de modo edición.
-    if (isEditDialogOpen) {
+    if (isEditDialogOpen || isSearchEngineDialogOpen) {
         return;
     }
 
