@@ -17,6 +17,16 @@ It is a static open source site that runs fully in the browser.
 - Import/export bookmarks as JSON
 - Local-only data storage (browser localStorage)
 
+## Privacy
+
+- Bookmark data is stored locally in your browser only
+- No backend is required for normal usage
+- Use Download to export a backup JSON file
+
+## Companion extension
+
+- Chrome Web Store: https://chromewebstore.google.com/detail/netnookapp/ajbikbmkmomhaejnednanjbhoihinapp
+
 ## Keyboard shortcuts
 
 - / : open search mode
@@ -38,16 +48,6 @@ It is a static open source site that runs fully in the browser.
 - Help popup and edit mode are mutually exclusive
 - While edit mode is active, help icon and help shortcut are disabled
 
-## Privacy
-
-- Bookmark data is stored locally in your browser only
-- No backend is required for normal usage
-- Use Download to export a backup JSON file
-
-## Companion extension
-
-- Chrome Web Store: https://chromewebstore.google.com/detail/netnookapp/ajbikbmkmomhaejnednanjbhoihinapp
-
 ## Run locally
 
 Open index.html in a browser, or serve the folder with any static file server.
@@ -64,3 +64,4 @@ py -m http.server 8000
 - css/styles.css: visual styles
 - js/netnook.js: application logic and keyboard handling
 - data/bookmarks.js: initial bookmark catalog
+- data/search-engines.js: initial search engine catalog
