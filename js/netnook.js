@@ -629,6 +629,7 @@ function saveSelectedSearchEngine() {
 
 document.getElementById('downloadMenu').addEventListener('click', downloadSettings);
 document.getElementById('uploadMenu').addEventListener('click', uploadSettings);
+document.getElementById('exitEditMenu').addEventListener('click', () => setEditMode(false));
 searchEngineMenu.addEventListener('click', openSearchEngineDialog);
 saveSearchEngineButton.addEventListener('click', saveSelectedSearchEngine);
 cancelSearchEngineButton.addEventListener('click', closeSearchEngineDialog);

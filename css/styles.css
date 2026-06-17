@@ -1,25 +1,37 @@
 :root {
     /* Color Palette */
-    --palette-foreground: #e0e0e0;
-    --palette-background: #121212;
-    --palette-separator-label: #555555;
-    --palette-separator-line: #333333;
-    --palette-searchbar: #222277;
-    --palette-searchbar-label: #6666FF;
-    --palette-urlbar: #225522;
-    --palette-urlbar-label: #66BB66;
-    --palette-selector: #e0e0e0;
-    --palette-filterbar: #333333;
-    --palette-hoverback: #333333;
-    --palette-dimmed: #333333;
-    --palette-dialog: #444444;
-    --palette-editmode: #FFA500;
-    --palette-editmode-selected: #ffbb3d;
+    --theme-foreground: #e0e0e0;
+    --theme-background: #121212;
+    --theme-separator-label: #555555;
+    --theme-separator-line: #333333;
+    --theme-searchbar: #222277;
+    --theme-searchbar-label: #6666FF;
+    --theme-urlbar: #225522;
+    --theme-urlbar-label: #66BB66;
+    --theme-selector: #e0e0e0;
+    --theme-filterbar: #333333;
+    --theme-hoverback: #333333;
+    --theme-dimmed: #333333;
+    --theme-dialog: #444444;
+    --theme-editmode: #FFA500;
+    --theme-editmode-selected: #ffbb3d;
+    --theme-overlay: rgba(0, 0, 0, 0.2);
+    --theme-panel-overlay: rgba(0, 0, 0, 0.7);
+    --theme-shadow-soft: rgba(0, 0, 0, 0.3);
+    --theme-shadow-strong: rgba(0, 0, 0, 0.35);
+    --theme-key-main-background: #3a3a3a;
+    --theme-key-main-border: #5a5a5a;
+    --theme-key-main-hover: #4a4a4a;
+    --theme-key-main-hover-border: #7a7a7a;
+    --theme-key-edit-foreground: #ffd29b;
+    --theme-key-edit-background: #6a4a28;
+    --theme-key-edit-border: #d29a57;
+    --theme-key-radius: 6px;
 }
 
 body {
-    background-color: var(--palette-background);
-    color: var(--palette-foreground);
+    background-color: var(--theme-background);
+    color: var(--theme-foreground);
     font-family: monospace;
     font-size: 16pt;
     user-select: none;
@@ -34,8 +46,8 @@ body {
     left: 0;
     right: 0;
     padding: 8px 0px;
-    background-color: var(--palette-filterbar);
-    color: var(--palette-foreground);
+    background-color: var(--theme-filterbar);
+    color: var(--theme-foreground);
     text-align: center;
     z-index: 0;
     visibility: hidden;
@@ -54,9 +66,9 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50%;
-    background-color: var(--palette-searchbar);
+    background-color: var(--theme-searchbar);
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px var(--theme-shadow-soft);
     z-index: 2;
     visibility: visible;
 }
@@ -64,35 +76,30 @@ body {
 .prompt.search-modal::before {
     content: attr(data-search-label);
     font-size: 12px;
-    color: var(--palette-searchbar-label);
+    color: var(--theme-searchbar-label);
     position: absolute;
     top: 5px;
     left: 10px;
 }
 
 .prompt.search-modal.valid-url {
-    background-color: var(--palette-urlbar);
+    background-color: var(--theme-urlbar);
 }
 
 .prompt.search-modal.valid-url::before {
-    color: var(--palette-urlbar-label);
+    color: var(--theme-urlbar-label);
     content: 'Open URL';
 }
 
 #cursor {
     display: inline-block;
     width: 2px;
-    /* Ancho del cursor */
     margin-right: -1px;
     margin-left: -1px;
     height: 1em;
-    /* Altura del cursor */
-    background-color: var(--palette-foreground);
-    /* Color del cursor */
+    background-color: var(--theme-foreground);
     animation: blink 0.6s step-end infinite;
-    /* Animación de parpadeo */
     vertical-align: bottom;
-    /* Alineación vertical */
 }
 
 @keyframes blink {
@@ -108,7 +115,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: var(--theme-overlay);
     backdrop-filter: blur(16px);
     z-index: 1;
     visibility: hidden;
@@ -127,7 +134,7 @@ body {
     border: 2px solid transparent !important;
     border-radius: 8px;
     text-decoration: none;
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -142,7 +149,7 @@ body {
     align-items: center;
     justify-content: flex-start;
     font-size: 10pt;
-    color: var(--palette-separator-label);
+    color: var(--theme-separator-label);
     width: 100%;
     margin: 5px 0;
     user-select: none;
@@ -155,7 +162,7 @@ body {
     content: '';
     flex: 1;
     height: 1px;
-    background-color: var(--palette-separator-line);
+    background-color: var(--theme-separator-line);
     margin-right: 10px;
 }
 
@@ -163,12 +170,12 @@ body {
     content: '';
     width: 25px;
     height: 1px;
-    background-color: var(--palette-separator-line);
+    background-color: var(--theme-separator-line);
     margin-left: 10px;
 }
 
 .separator.focused {
-    color: var(--palette-editmode);
+    color: var(--theme-editmode);
 }
 
 .separator i {
@@ -179,7 +186,7 @@ body {
 
 .separator.focused::before,
 .separator.focused::after {
-    background-color: var(--palette-editmode);
+    background-color: var(--theme-editmode);
 }
 
 /* no margins when empty */
@@ -190,15 +197,15 @@ body {
 }
 
 .icono.focused {
-    border-color: var(--palette-selector) !important;
+    border-color: var(--theme-selector) !important;
 }
 
 .edit-mode .icono.focused {
-    border-color: var(--palette-editmode) !important;
+    border-color: var(--theme-editmode) !important;
 }
 
 .icono:visited {
-    color: var(--palette-foreground)
+    color: var(--theme-foreground)
 }
 
 .icono:focus {
@@ -206,23 +213,23 @@ body {
 }
 
 .icono:hover {
-    background-color: var(--palette-hoverback);
+    background-color: var(--theme-hoverback);
 }
 
 .icono.discarded {
-    color: var(--palette-dimmed);
+    color: var(--theme-dimmed);
 }
 
 .icono.discarded:hover {
-    color: var(--palette-background);
+    color: var(--theme-background);
 }
 
 .icono.discarded:visited {
-    color: var(--palette-dimmed);
+    color: var(--theme-dimmed);
 }
 
 .icono.discarded:visited:hover {
-    color: var(--palette-background);
+    color: var(--theme-background);
 }
 
 #settingsIcon {
@@ -231,7 +238,7 @@ body {
     right: 0;
     padding: 10px;
     z-index: 1;
-    color: var(--palette-dimmed);
+    color: var(--theme-dimmed);
     cursor: pointer;
     bottom: 5px;
     right: 5px;
@@ -244,13 +251,13 @@ body {
     left: 5px;
     padding: 10px;
     z-index: 1;
-    color: var(--palette-dimmed);
+    color: var(--theme-dimmed);
     cursor: pointer;
     font-size: 24pt;
 }
 
 #helpIcon:hover {
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
 }
 
 #helpDialog {
@@ -261,12 +268,12 @@ body {
     width: min(90vw, 1200px);
     max-height: 85vh;
     overflow-y: auto;
-    background-color: var(--palette-dialog);
-    color: var(--palette-foreground);
-    border: 1px solid var(--palette-separator-line);
+    background-color: var(--theme-dialog);
+    color: var(--theme-foreground);
+    border: 1px solid var(--theme-separator-line);
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 8px 24px var(--theme-shadow-strong);
     z-index: 1000;
 }
 
@@ -288,7 +295,7 @@ body {
 #helpDialog h3 {
     margin: 18px 0 8px;
     font-size: 1em;
-    color: var(--palette-editmode);
+    color: var(--theme-editmode);
 }
 
 #helpDialog ul {
@@ -314,42 +321,42 @@ body {
 }
 
 .keyTheme-main .helpKey {
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
 }
 
 .keyTheme-edit .helpKey {
-    color: #ffd29b;
+    color: var(--theme-key-edit-foreground);
 }
 
 .helpKey::before {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 6px;
+    border-radius: var(--theme-key-radius);
     transform: scale(1.1);
     transform-origin: center;
     z-index: -1;
 }
 
 .keyTheme-main .helpKey::before {
-    border: 1px solid #5a5a5a;
-    background-color: #3a3a3a;
+    border: 1px solid var(--theme-key-main-border);
+    background-color: var(--theme-key-main-background);
 }
 
 .keyTheme-edit .helpKey::before {
-    border: 1px solid #d29a57;
-    background-color: #6a4a28;
+    border: 1px solid var(--theme-key-edit-border);
+    background-color: var(--theme-key-edit-background);
 }
 
 #helpDialog a,
 #helpDialog a:visited {
-    color: var(--palette-editmode);
+    color: var(--theme-editmode);
     text-decoration: none;
 }
 
 #helpDialog a:hover,
 #helpDialog a:focus {
-    color: var(--palette-editmode-selected);
+    color: var(--theme-editmode-selected);
     text-decoration: none;
 }
 
@@ -363,7 +370,7 @@ body {
 
 .helpDialogDivider {
     border: 0;
-    border-top: 1px solid var(--palette-separator-line);
+    border-top: 1px solid var(--theme-separator-line);
     opacity: 0.8;
     margin: 10px 0 14px;
 }
@@ -374,7 +381,7 @@ body {
     line-height: 1;
     border: none;
     background: transparent;
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
     cursor: pointer;
     padding: 0 8px;
     position: absolute;
@@ -384,19 +391,19 @@ body {
 }
 
 #closeHelpDialog:hover {
-    color: var(--palette-editmode-selected);
+    color: var(--theme-editmode-selected);
 }
 
 #settingsIcon:hover {
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
 }
 
 .edit-mode #settingsIcon {
-    color: var(--palette-editmode);
+    color: var(--theme-editmode);
 }
 
 .edit-mode #settingsIcon:hover {
-    color: var(--palette-editmode-selected);
+    color: var(--theme-editmode-selected);
 }
 
 html.edit-mode #helpIcon {
@@ -411,19 +418,19 @@ html.edit-mode #helpIcon {
     transform: translateX(-50%);
     padding: 10px;
     font-size: 8pt;
-    color: var(--palette-dimmed);
+    color: var(--theme-dimmed);
     z-index: -1;
 }
 
 #versiontag a,
 #versiontag a:visited {
-    color: var(--palette-dimmed);
+    color: var(--theme-dimmed);
     text-decoration: none;
 }
 
 #versiontag a:hover,
 #versiontag a:focus {
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
     text-decoration: none;
 }
 
@@ -439,7 +446,7 @@ html.edit-mode::before {
     left: 0;
     width: calc(100vw);
     height: calc(100vh);
-    border: 5px dashed var(--palette-editmode);
+    border: 5px dashed var(--theme-editmode);
     z-index: 1000;
     pointer-events: none;
     box-sizing: border-box;
@@ -452,12 +459,12 @@ html.edit-mode::before {
     transform: translate(-50%, -50%);
     width: 90%;
     max-width: 800px;
-    background-color: var(--palette-dialog);
-    color: var(--palette-foreground);
-    border: 1px solid var(--palette-separator-line);
+    background-color: var(--theme-dialog);
+    color: var(--theme-foreground);
+    border: 1px solid var(--theme-separator-line);
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px var(--theme-shadow-soft);
     z-index: 1000;
 }
 
@@ -489,11 +496,11 @@ html.edit-mode::before {
     width: 20%;
     text-align: right;
     margin-right: 15px;
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
 }
 
 #editDialog i {
-    color: var(--palette-foreground);
+    color: var(--theme-foreground);
 }
 
 .modal-dialog input,
@@ -502,15 +509,15 @@ html.edit-mode::before {
     font-size: 14pt;
     flex: 1;
     padding: 10px;
-    border: 1px solid var(--palette-separator-line);
+    border: 1px solid var(--theme-separator-line);
     border-radius: 5px;
-    background-color: var(--palette-background);
-    color: var(--palette-foreground);
+    background-color: var(--theme-background);
+    color: var(--theme-foreground);
 }
 
 .modal-dialog input:focus,
 .modal-dialog textarea:focus {
-    outline: 2px solid var(--palette-selector);
+    outline: 2px solid var(--theme-selector);
 }
 
 .modal-dialog .form-buttons {
@@ -526,15 +533,15 @@ html.edit-mode::before {
     padding: 8px 16px;
     border: none;
     border-radius: 5px;
-    background-color: var(--palette-searchbar);
-    color: var(--palette-searchbar-label);
+    background-color: var(--theme-searchbar);
+    color: var(--theme-searchbar-label);
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
 .modal-dialog button:hover {
-    background-color: var(--palette-selector);
-    color: var(--palette-background);
+    background-color: var(--theme-selector);
+    color: var(--theme-background);
 }
 
 #searchEngineDialog textarea {
@@ -545,13 +552,14 @@ html.edit-mode::before {
 #searchEngineDialog .selection-group {
     flex-direction: column;
     align-items: center;
+    gap: 12px;
 }
 
 #searchEngineDialog .selection-group label {
     width: auto;
     text-align: center;
     margin-right: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 #searchEngineDialog .options-list {
@@ -559,7 +567,9 @@ html.edit-mode::before {
     flex-wrap: wrap;
     justify-content: center;
     align-content: flex-start;
-    gap: 8px;
+    column-gap: 12px;
+    row-gap: 8px;
+    line-height: 1;
     max-height: 240px;
     overflow-y: auto;
     width: 100%;
@@ -576,16 +586,16 @@ html.edit-mode::before {
     margin-right: 0;
     text-align: left;
     cursor: pointer;
-    border-radius: 999px;
-    border: 1px solid #5a5a5a;
-    background-color: #3a3a3a;
-    color: var(--palette-foreground);
+    border-radius: var(--theme-key-radius);
+    border: 1px solid var(--theme-key-main-border);
+    background-color: var(--theme-key-main-background);
+    color: var(--theme-foreground);
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 #searchEngineDialog .search-engine-option:hover {
-    background-color: #4a4a4a;
-    border-color: #7a7a7a;
+    background-color: var(--theme-key-main-hover);
+    border-color: var(--theme-key-main-hover-border);
 }
 
 #searchEngineDialog .search-engine-option input {
@@ -598,15 +608,16 @@ html.edit-mode::before {
 
 #searchEngineDialog .search-engine-option-name {
     font-weight: 700;
-    font-size: 0.9em;
-    padding: 6px 12px;
-    border-radius: 999px;
-    color: var(--palette-foreground);
+    font-size: 14pt;
+    line-height: 1.1;
+    padding: 4px 12px;
+    border-radius: var(--theme-key-radius);
+    color: var(--theme-foreground);
 }
 
 #searchEngineDialog .search-engine-option input:checked + .search-engine-option-name {
-    background-color: #5a5a5a;
-    color: var(--palette-foreground);
+    background-color: var(--theme-key-main-border);
+    color: var(--theme-foreground);
 }
 
 
@@ -615,15 +626,13 @@ html.edit-mode::before {
 .editElement {
     font-family: monospace;
     font-size: 14pt;
-    color: var(--palette-editmode);
-    background-color: rgba(0, 0, 0, 0.7);
-    /* Fondo semitransparente */
+    color: var(--theme-editmode);
+    background-color: var(--theme-panel-overlay);
     padding: 5px 10px;
     border-radius: 5px;
     position: fixed;
     z-index: 1000;
     visibility: hidden;
-    /* Oculto por defecto */
 }
 
 .editElement.clickable {
@@ -631,7 +640,7 @@ html.edit-mode::before {
 }
 
 .editElement:hover {
-    color: var(--palette-editmode-selected);
+    color: var(--theme-editmode-selected);
 }
 
 .edit-mode .editElement {
@@ -665,6 +674,12 @@ html.edit-mode::before {
 
 #uploadMenu {
     bottom: 140px;
+    right: 15px;
+    cursor: pointer;
+}
+
+#exitEditMenu {
+    bottom: 180px;
     right: 15px;
     cursor: pointer;
 }
