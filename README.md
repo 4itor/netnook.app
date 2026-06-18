@@ -29,6 +29,10 @@ There's a companion extension for Chromium browsers that uses netnook.app as the
 
 - Chrome Web Store: https://chromewebstore.google.com/detail/netnookapp/ajbikbmkmomhaejnednanjbhoihinapp
 
+## PWA Application
+
+The folder has files so it's detected by most modern browsers as a downloadable progressive web app, than can be installed as a local web browser app.
+
 ## Keyboard shortcuts
 
 - / : open search mode
@@ -47,9 +51,11 @@ There's a companion extension for Chromium browsers that uses netnook.app as the
 
 ## How to host your own
 
+### Hosting Service
+
 Serve via http(s) the file `index.html` and the folders `css/`, `data/`, and `js/` on any static web hosting service.
 
-## How to run locally
+### Run locally
 
 Open index.html in a browser, or serve the folder with any static file server.
 
