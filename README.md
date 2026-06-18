@@ -25,6 +25,8 @@ It is a static open source site that runs fully in the browser.
 
 ## Companion extension
 
+There's a companion extension for Chromium browsers that uses netnook.app as the <newtab> page.
+
 - Chrome Web Store: https://chromewebstore.google.com/detail/netnookapp/ajbikbmkmomhaejnednanjbhoihinapp
 
 ## Keyboard shortcuts
