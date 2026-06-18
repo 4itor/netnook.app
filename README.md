@@ -45,11 +45,11 @@ There's a companion extension for Chromium browsers that uses netnook.app as the
 - M : add separator after selected
 - X : delete selected item
 
-## Host your own
+## How to host your own
 
-Serve via http the `index.html` file and `css`, `data`, and `js` folders.
+Serve via http(s) the file `index.html` and the folders `css/`, `data/`, and `js/` on any static web hosting service.
 
-## Run locally
+## How to run locally
 
 Open index.html in a browser, or serve the folder with any static file server.
 
