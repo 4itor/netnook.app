@@ -12,10 +12,12 @@ let isHelpDialogOpen = false;
 let isFilterBarVisible = false;
 let editTarget = null;
 let UnsavedChanges = false;
+let calculatorCopyFeedbackTimeout = null;
 
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
 const filtroDisplay = document.getElementById('filtro');
+const calcPreview = document.getElementById('calcPreview');
 const helpIcon = document.getElementById('helpIcon');
 const helpDialog = document.getElementById('helpDialog');
 const closeHelpDialogButton = document.getElementById('closeHelpDialog');
@@ -216,8 +218,17 @@ function actualizarFiltro() {
     // Primero si existe un elemento que empiece por el filtro entrado; de lo contrario: si existe un elemento con subcadena directa, seleccionamos el primero de ellos; en caso de no existir, usamos el primer elemento que cumpla el filtro.
     selectedPos = primerVisibleInicio ?? primerVisibleDirecto ?? primerVisible ?? null;
 
+    const isCalculatorExpression = Boolean(evaluateMathExpression(filterText));
+
+    // Si detectamos una operación de calculadora válida, activamos el cuadro de búsqueda central.
+    if (isCalculatorExpression) {
+        if (!isSearchMode) {
+            isAutoSeachMode = true;
+            enableSearchMode();
+        }
+    }
     // En caso de haber entrado una cadena de filtro que no se cumple en ninguno de los enlaces, se activa el modo de búsqueda automaticamente, este modo de busqueda automatica se desactiva al borrar caracteres aidel filtro y encontrar al menos un enlace que cumpla el filtro.
-    if ((selectedPos === null) && (filterText.length > 1)) {
+    else if ((selectedPos === null) && (filterText.length > 1)) {
         if (!isSearchMode) {
             isAutoSeachMode = true;
             enableSearchMode();
@@ -236,7 +247,10 @@ function actualizarFiltro() {
 // Función para convertir el filtro en una expresión regular
 function crearRegexDeFiltro(filtro) {
     const filtroLower = filtro.toLowerCase();
-    const regexString = filtroLower.split('').map(char => `.*${char}`).join('');
+    const regexString = filtroLower
+        .split('')
+        .map((char) => `.*${char.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
+        .join('');
     return new RegExp(regexString, 'i');
 }
 
@@ -357,6 +371,7 @@ function updateFilterDisplay() {
     }
 
     filtroDisplay.style.visibility = isFilterBarVisible ? 'visible' : 'hidden';
+    updateCalculatorPreview();
 }
 
 function updateBackgroundOverlayVisibility() {
@@ -404,9 +419,159 @@ function updateUrlColor() {
     }
 }
 
+function hasBalancedParentheses(expression) {
+    let balance = 0;
+    for (const char of expression) {
+        if (char === '(') {
+            balance += 1;
+        } else if (char === ')') {
+            balance -= 1;
+            if (balance < 0) {
+                return false;
+            }
+        }
+    }
+    return balance === 0;
+}
+
+function evaluateMathExpression(expressionText) {
+    const rawExpression = String(expressionText || '').trim();
+    if (!rawExpression) {
+        return null;
+    }
+
+    if (!/\d/.test(rawExpression)) {
+        return null;
+    }
+
+    if (!/[+\-*/%^]/.test(rawExpression)) {
+        return null;
+    }
+
+    if (!/^[\deE+\-*/%^().\s]+$/.test(rawExpression)) {
+        return null;
+    }
+
+    if (!hasBalancedParentheses(rawExpression)) {
+        return null;
+    }
+
+    const compactExpression = rawExpression.replace(/\s+/g, '');
+    if (!compactExpression || /[+\-*/%^.]$/.test(compactExpression)) {
+        return null;
+    }
+
+    const evaluableExpression = compactExpression.replace(/\^/g, '**');
+
+    try {
+        const result = Function('"use strict"; return (' + evaluableExpression + ');')();
+        if (typeof result !== 'number' || !Number.isFinite(result)) {
+            return null;
+        }
+
+        return {
+            expression: rawExpression,
+            result
+        };
+    } catch {
+        return null;
+    }
+}
+
+function hideCalculatorPreview() {
+    calcPreview.classList.add('hidden');
+}
+
+function formatCalculatorResult(value) {
+    if (value === 0) {
+        return {
+            text: '0',
+            html: '0',
+            isHtml: false
+        };
+    }
+
+    const absoluteValue = Math.abs(value);
+    const integerDigits = absoluteValue >= 1 ? (Math.floor(Math.log10(absoluteValue)) + 1) : 0;
+    const shouldUseExponential = (integerDigits > 15) || (absoluteValue < 1e-10);
+
+    if (shouldUseExponential) {
+        const [mantissaRaw, exponentRaw] = value.toExponential(12).split('e');
+        const mantissa = mantissaRaw
+            .replace(/(\.\d*?[1-9])0+$/, '$1')
+            .replace(/\.0+$/, '');
+        const exponent = String(Number(exponentRaw));
+        return {
+            text: mantissa + ' x 10^' + exponent,
+            html: mantissa + ' &times; 10<sup>' + exponent + '</sup>',
+            isHtml: true
+        };
+    }
+
+    const formatter = new Intl.NumberFormat('es-ES', {
+        useGrouping: true,
+        maximumFractionDigits: 20
+    });
+    const formattedValue = formatter.format(value);
+    return {
+        text: formattedValue,
+        html: formattedValue,
+        isHtml: false
+    };
+}
+
+function placeCalculatorPreview() {
+    const rect = filtroDisplay.getBoundingClientRect();
+    calcPreview.style.left = (rect.left + rect.width / 2) + 'px';
+    calcPreview.style.top = (rect.top - 10) + 'px';
+}
+
+function updateCalculatorPreview() {
+    if (!isFilterBarVisible) {
+        hideCalculatorPreview();
+        return;
+    }
+
+    const evaluation = evaluateMathExpression(filterText);
+    if (!evaluation) {
+        hideCalculatorPreview();
+        return;
+    }
+
+    const formattedResult = formatCalculatorResult(evaluation.result);
+    if (formattedResult.isHtml) {
+        calcPreview.innerHTML = formattedResult.html;
+    } else {
+        calcPreview.textContent = formattedResult.text;
+    }
+    placeCalculatorPreview();
+    calcPreview.classList.remove('hidden');
+}
+
+function showCalculatorCopyFeedback(isSuccess) {
+    calcPreview.classList.remove('copy-feedback', 'copy-feedback-success', 'copy-feedback-error');
+
+    // Reinicia la animacion si se copia varias veces seguidas.
+    void calcPreview.offsetWidth;
+
+    calcPreview.classList.add('copy-feedback');
+    calcPreview.classList.add(isSuccess ? 'copy-feedback-success' : 'copy-feedback-error');
+
+    if (calculatorCopyFeedbackTimeout) {
+        clearTimeout(calculatorCopyFeedbackTimeout);
+    }
+
+    calculatorCopyFeedbackTimeout = setTimeout(() => {
+        calcPreview.classList.remove('copy-feedback', 'copy-feedback-success', 'copy-feedback-error');
+        calculatorCopyFeedbackTimeout = null;
+    }, 950);
+}
+
 function UpdateCursorPos() {
     filtroDisplay.style.setProperty('--char-count', cursorPos);
 }
+
+window.addEventListener('resize', updateCalculatorPreview);
 
 function openHelpPage() {
     if (isHelpDialogOpen) {
@@ -776,6 +941,17 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 'Enter') {
         if (isSearchMode) {
             e.preventDefault();
+            const evaluation = evaluateMathExpression(filterText);
+            if (evaluation) {
+                navigator.clipboard.writeText(String(evaluation.result))
+                    .then(() => {
+                        showCalculatorCopyFeedback(true);
+                    })
+                    .catch(() => {
+                        showCalculatorCopyFeedback(false);
+                    });
+                return;
+            }
             switch (filterText) {
                 case '!download':
                     downloadSettings();
