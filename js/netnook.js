@@ -503,7 +503,7 @@ function formatCalculatorResult(value) {
         const exponent = String(Number(exponentRaw));
         return {
             text: mantissa + ' x 10^' + exponent,
-            html: mantissa + ' &times; 10<sup>' + exponent + '</sup>',
+            html: "<span class='scientific-number'><span>" + mantissa + "</span><span>&times;</span><span class='power-block'><span>10</span><span class='power-exponent'>" + exponent + '</span></span></span>',
             isHtml: true
         };
     }

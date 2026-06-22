@@ -147,10 +147,22 @@ body {
     display: none;
 }
 
-.calc-preview sup {
+.calc-preview .scientific-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2em;
+}
+
+.calc-preview .power-block {
+    display: inline-flex;
+    align-items: flex-start;
+    line-height: 1;
+}
+
+.calc-preview .power-exponent {
     font-size: 0.68em;
-    line-height: 0;
-    vertical-align: super;
+    line-height: 1;
+    margin-left: 0.06em;
 }
 
 @keyframes copyBadgePop {
