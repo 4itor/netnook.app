@@ -12,6 +12,7 @@ It is a static open source site that runs fully in the browser.
 - Fast keyboard-first search/filter experience
 - Real-time filtering while typing: links are narrowed to those containing the typed characters
 - URL detection and direct open mode
+- Calculator mode: shows the result of any typed mathematical expressions, use Enter to copy
 - Edit mode to reorder, add, edit, and delete bookmarks and separators
 - In-app help popup (question icon or ? key)
 - Import/export bookmarks as JSON
