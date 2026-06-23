@@ -722,7 +722,11 @@ function formatCalculatorEvaluationHtml(evaluation) {
 function getPlainTextFromHtml(htmlContent) {
     const tempContainer = document.createElement('div');
     tempContainer.innerHTML = htmlContent;
-    return (tempContainer.textContent || '').replace(/\s+/g, ' ').trim();
+    return (tempContainer.textContent || '')
+        .replace(/\s+/g, ' ')
+        .replace(/(\d)\.(?=\d{3}(?:\D|$))/g, '$1')
+        .replace(/[x×]\s*10\s*([+\-]?\d+)/gi, '*10^$1')
+        .trim();
 }
 
 function getCalculatorCopyTextFromPreview() {
