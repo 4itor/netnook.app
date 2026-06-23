@@ -70,7 +70,6 @@ if (isStandalone()) {
 }
 
 function addSeparator(catalogItem, position = null) {
-    // Crear separador como un div
     const separator = document.createElement('div');
     separator.className = 'separator discarded';
     separator.dataset.nombre = catalogItem.name;
@@ -82,14 +81,12 @@ function addSeparator(catalogItem, position = null) {
         separator.appendChild(icon);
     }
 
-    // Insertar en la posición especificada o al final
     if (position !== null && contenedor.children[position]) {
         contenedor.insertBefore(separator, contenedor.children[position]);
     } else {
         contenedor.appendChild(separator);
     }
 
-    // Añadir comportamiento dinámico de enlaces para el click
     separator.addEventListener('click', function (event) {
         handleLinkEvent(event, '');
     });
@@ -97,7 +94,6 @@ function addSeparator(catalogItem, position = null) {
 
 
 function addLink(catalogItem, position = null) {
-    // Crear ícono como un enlace
     const anchor = document.createElement('a');
     anchor.className = 'icono';
     anchor.href = catalogItem.addr;
@@ -110,14 +106,12 @@ function addLink(catalogItem, position = null) {
     anchor.appendChild(icon);
     anchor.appendChild(text);
 
-    // Insertar en la posición especificada o al final
     if (position !== null && contenedor.children[position]) {
         contenedor.insertBefore(anchor, contenedor.children[position]);
     } else {
         contenedor.appendChild(anchor);
     }
 
-    // Añadir comportamiento dinámico de enlaces para el click
     anchor.addEventListener('click', function (event) {
         handleLinkEvent(event, anchor.href);
     });
@@ -138,12 +132,12 @@ function populateCatalog(catalog) {
 
     // Actualiza las referencias y restablece el filtro
     elements = Array.from(contenedor.children);
-    destacarSeleccionado();  // Aplica el estado destacado inicial
+    highlightSelected();
 }
 
 function handleLinkEvent(event, href) {
     if (isEditMode) {
-        event.preventDefault(); // Anula el comportamiento por defecto del enlace
+        event.preventDefault();
         if (isEditDialogOpen) {
             return;
         }
@@ -153,7 +147,7 @@ function handleLinkEvent(event, href) {
             selectedPos = Array.from(elements).indexOf(clickedIcon);
 
             // Actualizar la selección visual
-            destacarSeleccionado();
+            highlightSelected();
         }
     } else if (isStandalone()) {
         event.preventDefault();
@@ -175,7 +169,7 @@ function actualizarFiltro() {
             }
         });
         selectedPos = null;
-        destacarSeleccionado();
+        highlightSelected();
         return;
     }
 
@@ -240,7 +234,7 @@ function actualizarFiltro() {
     }
 
     // Destacamos los enlaces según el filtro
-    destacarSeleccionado();
+    highlightSelected();
 }
 
 
@@ -254,7 +248,7 @@ function crearRegexDeFiltro(filtro) {
     return new RegExp(regexString, 'i');
 }
 
-function destacarSeleccionado() {
+function highlightSelected() {
     console.log('Pos: ' + selectedPos)
     elements.forEach((elemento, index) => {
         if (index === selectedPos) {
@@ -266,12 +260,12 @@ function destacarSeleccionado() {
     });
 }
 
-function abrirEnlaceSeleccionado() {
+function openBookmark() {
     const enlace = elements[selectedPos].getAttribute('href');
     window.open(enlace, '_self'); // Abre el enlace en la ventana actual
 }
 
-function googleSearch() {
+function performSearch() {
     if (isValidUrl(filterText)) {
         if (!filterText.startsWith('http')) {
             filterText = 'https://' + filterText;
@@ -378,7 +372,6 @@ function updateBackgroundOverlayVisibility() {
     searchBackground.style.visibility = (isSearchMode || isHelpDialogOpen) ? 'visible' : 'hidden';
 }
 
-// Activa el modo de búsqueda
 function enableSearchMode() {
     isSearchMode = true;
     updateUrlColor();
@@ -387,7 +380,6 @@ function enableSearchMode() {
     updateFilterDisplay();
 }
 
-// Desactiva el modo de búsqueda
 function disableSearchMode() {
     isSearchMode = false;
     isAutoSeachMode = false;
@@ -403,9 +395,9 @@ function isValidUrl(texto) {
             texto = "https://" + texto;
         }
         new URL(texto);
-        return true; // Si el constructor no lanza una excepción, es una URL válida
+        return true;
     } catch (e) {
-        return false; // Si lanza una excepción, no es una URL válida
+        return false;
     }
 }
 
@@ -434,7 +426,196 @@ function hasBalancedParentheses(expression) {
     return balance === 0;
 }
 
+function getDecimalishApi() {
+    if (typeof window !== 'undefined' && window.decimalish) {
+        return window.decimalish;
+    }
+    return null;
+}
+
+function tokenizeMathExpression(expressionText) {
+    const tokens = [];
+    let index = 0;
+
+    while (index < expressionText.length) {
+        const char = expressionText[index];
+
+        if (/\s/.test(char)) {
+            index += 1;
+            continue;
+        }
+
+        if (char === '/' && expressionText[index + 1] === '/') {
+            tokens.push({ type: 'operator', value: '//' });
+            index += 2;
+            continue;
+        }
+
+        if (/[+\-*/%^()]/.test(char)) {
+            tokens.push({ type: 'operator', value: char });
+            index += 1;
+            continue;
+        }
+
+        const numberMatch = expressionText.slice(index).match(/^(?:\d+\.?\d*|\.\d+)(?:e[+\-]?\d+)?/i);
+        if (numberMatch) {
+            tokens.push({ type: 'number', value: numberMatch[0] });
+            index += numberMatch[0].length;
+            continue;
+        }
+
+        throw new Error('INVALID_TOKEN');
+    }
+
+    return tokens;
+}
+
+function evaluateMathTokensWithDecimalish(tokens, decimalishApi) {
+    const decimalish = decimalishApi;
+    let cursor = 0;
+    let divRemResult = null;
+
+    function currentToken() {
+        return tokens[cursor] || null;
+    }
+
+    function consumeToken(expectedValue = null) {
+        const token = currentToken();
+        if (!token) {
+            return null;
+        }
+
+        if ((expectedValue !== null) && (token.value !== expectedValue)) {
+            return null;
+        }
+
+        cursor += 1;
+        return token;
+    }
+
+    function parsePrimary() {
+        const token = currentToken();
+        if (!token) {
+            throw new Error('UNEXPECTED_END');
+        }
+
+        if (token.type === 'number') {
+            consumeToken();
+            return decimalish.decimal(token.value);
+        }
+
+        if (token.value === '(') {
+            consumeToken('(');
+            const expressionValue = parseAddSub();
+            if (!consumeToken(')')) {
+                throw new Error('MISSING_PAREN');
+            }
+            return expressionValue;
+        }
+
+        throw new Error('UNEXPECTED_TOKEN');
+    }
+
+    function parseUnary() {
+        const token = currentToken();
+        if (token && token.type === 'operator' && (token.value === '+' || token.value === '-')) {
+            consumeToken();
+            const value = parseUnary();
+            return token.value === '-' ? decimalish.neg(value) : value;
+        }
+        return parsePrimary();
+    }
+
+    function parsePower() {
+        const base = parseUnary();
+        const token = currentToken();
+        if (!token || token.value !== '^') {
+            return base;
+        }
+
+        consumeToken('^');
+        const exponent = parsePower();
+
+        try {
+            return decimalish.pow(base, exponent);
+        } catch {
+            const fallbackResult = Math.pow(Number(base), Number(exponent));
+            if (!Number.isFinite(fallbackResult)) {
+                throw new Error('INVALID_POWER');
+            }
+            return decimalish.decimal(String(fallbackResult));
+        }
+    }
+
+    function parseMulDivRem() {
+        let value = parsePower();
+
+        while (true) {
+            const token = currentToken();
+            if (!token || !['*', '/', '%', '//'].includes(token.value)) {
+                break;
+            }
+
+            consumeToken();
+            const right = parsePower();
+
+            if (token.value === '*') {
+                value = decimalish.mul(value, right);
+                divRemResult = null;
+            } else if (token.value === '/') {
+                value = decimalish.div(value, right);
+                divRemResult = null;
+            } else if (token.value === '//') {
+                const [quotient, remainder] = decimalish.divRem(value, right);
+                value = quotient;
+                divRemResult = {
+                    quotient,
+                    remainder
+                };
+            } else {
+                value = decimalish.rem(value, right);
+                divRemResult = null;
+            }
+        }
+
+        return value;
+    }
+
+    function parseAddSub() {
+        let value = parseMulDivRem();
+
+        while (true) {
+            const token = currentToken();
+            if (!token || !['+', '-'].includes(token.value)) {
+                break;
+            }
+
+            consumeToken();
+            const right = parseMulDivRem();
+            value = token.value === '+' ? decimalish.add(value, right) : decimalish.sub(value, right);
+            divRemResult = null;
+        }
+
+        return value;
+    }
+
+    const result = parseAddSub();
+    if (cursor !== tokens.length) {
+        throw new Error('TRAILING_TOKENS');
+    }
+
+    return {
+        value: result,
+        divRem: divRemResult
+    };
+}
+
 function evaluateMathExpression(expressionText) {
+    const decimalish = getDecimalishApi();
+    if (!decimalish) {
+        return null;
+    }
+
     const rawExpression = String(expressionText || '').trim();
     if (!rawExpression) {
         return null;
@@ -461,17 +642,14 @@ function evaluateMathExpression(expressionText) {
         return null;
     }
 
-    const evaluableExpression = compactExpression.replace(/\^/g, '**');
-
     try {
-        const result = Function('"use strict"; return (' + evaluableExpression + ');')();
-        if (typeof result !== 'number' || !Number.isFinite(result)) {
-            return null;
-        }
+        const tokens = tokenizeMathExpression(compactExpression);
+        const parsedResult = evaluateMathTokensWithDecimalish(tokens, decimalish);
 
         return {
             expression: rawExpression,
-            result
+            result: parsedResult.value,
+            divRem: parsedResult.divRem
         };
     } catch {
         return null;
@@ -483,41 +661,72 @@ function hideCalculatorPreview() {
 }
 
 function formatCalculatorResult(value) {
-    if (value === 0) {
+    const decimalish = getDecimalishApi();
+    if (!decimalish) {
         return {
-            text: '0',
-            html: '0',
-            isHtml: false
+            html: String(value)
         };
     }
 
-    const absoluteValue = Math.abs(value);
-    const integerDigits = absoluteValue >= 1 ? (Math.floor(Math.log10(absoluteValue)) + 1) : 0;
-    const shouldUseExponential = (integerDigits > 15) || (absoluteValue < 1e-10);
+    if (decimalish.eq(value, '0')) {
+        return {
+            html: '0'
+        };
+    }
+
+    const absoluteValue = decimalish.abs(value);
+    const hasLargeIntegerPart = decimalish.gte(absoluteValue, '1') && (decimalish.scale(absoluteValue) + 1 > 15);
+    const hasTinyMagnitude = decimalish.lt(absoluteValue, '1e-10');
+    const shouldUseExponential = hasLargeIntegerPart || hasTinyMagnitude;
 
     if (shouldUseExponential) {
-        const [mantissaRaw, exponentRaw] = value.toExponential(12).split('e');
+        const [mantissaRaw, exponentRaw] = decimalish.toExponential(value, { places: 12 }).split('e');
         const mantissa = mantissaRaw
             .replace(/(\.\d*?[1-9])0+$/, '$1')
             .replace(/\.0+$/, '');
         const exponent = String(Number(exponentRaw));
         return {
-            text: mantissa + ' x 10^' + exponent,
-            html: "<span class='scientific-number'><span>" + mantissa + "</span><span>&times;</span><span class='power-block'><span>10</span><span class='power-exponent'>" + exponent + '</span></span></span>',
-            isHtml: true
+            html: "<span class='scientific-number'><span>" + mantissa + "</span><span>&times;</span><span class='power-block'><span>10</span><span class='power-exponent'>" + exponent + '</span></span></span>'
         };
     }
 
-    const formatter = new Intl.NumberFormat('es-ES', {
-        useGrouping: true,
-        maximumFractionDigits: 20
-    });
-    const formattedValue = formatter.format(value);
+    const fixedValue = decimalish.toFixed(value);
+    const sign = fixedValue.startsWith('-') ? '-' : '';
+    const unsignedValue = sign ? fixedValue.slice(1) : fixedValue;
+    const parts = unsignedValue.split('.');
+    const integerPart = parts[0] || '0';
+    const fractionPart = parts[1] || '';
+    const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    const formattedValue = sign + groupedInteger + (fractionPart ? ',' + fractionPart : '');
+
     return {
-        text: formattedValue,
-        html: formattedValue,
-        isHtml: false
+        html: formattedValue
     };
+}
+
+function formatCalculatorEvaluationHtml(evaluation) {
+    const formattedResult = formatCalculatorResult(evaluation.result);
+
+    if (!evaluation.divRem) {
+        return formattedResult.html;
+    }
+
+    const quotientFormatted = formatCalculatorResult(evaluation.divRem.quotient);
+    const remainderFormatted = formatCalculatorResult(evaluation.divRem.remainder);
+    const rawRemainder = String(evaluation.divRem.remainder);
+    return rawRemainder !== '0'
+        ? quotientFormatted.html + ' r:' + remainderFormatted.html
+        : quotientFormatted.html;
+}
+
+function getPlainTextFromHtml(htmlContent) {
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = htmlContent;
+    return (tempContainer.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function getCalculatorCopyTextFromPreview() {
+    return getPlainTextFromHtml(calcPreview.innerHTML);
 }
 
 function placeCalculatorPreview() {
@@ -538,12 +747,8 @@ function updateCalculatorPreview() {
         return;
     }
 
-    const formattedResult = formatCalculatorResult(evaluation.result);
-    if (formattedResult.isHtml) {
-        calcPreview.innerHTML = formattedResult.html;
-    } else {
-        calcPreview.textContent = formattedResult.text;
-    }
+    const formattedHtml = formatCalculatorEvaluationHtml(evaluation);
+    calcPreview.innerHTML = formattedHtml;
     placeCalculatorPreview();
     calcPreview.classList.remove('hidden');
 }
@@ -617,7 +822,7 @@ function setEditMode(enabled) {
             closeSearchEngineDialog();
         }
         selectedPos = null;
-        destacarSeleccionado();
+        highlightSelected();
         saveCatalogToLocal(catalogToUse); // Guarda el catálogo en el almacenamiento local
         UnsavedChanges = false;
         document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
@@ -879,7 +1084,7 @@ document.addEventListener('keydown', (e) => {
                 // Deseleccionar el elemento
                 e.preventDefault();
                 selectedPos = null;
-                destacarSeleccionado();
+                highlightSelected();
             } else if (e.key === 'e') {
                 // Editar el elemento
                 e.preventDefault();
@@ -888,22 +1093,22 @@ document.addEventListener('keydown', (e) => {
                 // Mover el elemento a la izquierda
                 e.preventDefault();
                 console.log('left');
-                moverElemento(selectedPos, 'left');
+                moveElement(selectedPos, 'left');
             } else if ((e.key === 'ArrowRight') || (e.key === 'd')) {
                 // Mover el elemento a la derecha
                 e.preventDefault();
                 console.log('right');
-                moverElemento(selectedPos, 'right');
+                moveElement(selectedPos, 'right');
             } else if ((e.key === 'ArrowUp') || (e.key === 'w')) {
                 // Mover el elemento al grupo anterior
                 e.preventDefault();
                 console.log('up');
-                moverElemento(selectedPos, 'up');
+                moveElement(selectedPos, 'up');
             } else if ((e.key === 'ArrowDown') || (e.key === 's')) {
                 // Mover el elemento al grupo siguiente
                 e.preventDefault();
                 console.log('down');
-                moverElemento(selectedPos, 'down');
+                moveElement(selectedPos, 'down');
             } else if (e.key === 'c') {
                 // Duplicar el elemento seleccionado
                 e.preventDefault();
@@ -923,7 +1128,7 @@ document.addEventListener('keydown', (e) => {
                 // Eliminar el elemento seleccionado
                 e.preventDefault();
                 console.log('delete');
-                eliminarElemento(selectedPos);
+                removeElement(selectedPos);
             }
         }
         return;
@@ -943,7 +1148,12 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             const evaluation = evaluateMathExpression(filterText);
             if (evaluation) {
-                navigator.clipboard.writeText(String(evaluation.result))
+                const previewCopyText = getCalculatorCopyTextFromPreview();
+                if (!previewCopyText) {
+                    return;
+                }
+
+                navigator.clipboard.writeText(previewCopyText)
                     .then(() => {
                         showCalculatorCopyFeedback(true);
                     })
@@ -952,19 +1162,10 @@ document.addEventListener('keydown', (e) => {
                     });
                 return;
             }
-            switch (filterText) {
-                case '!download':
-                    downloadSettings();
-                    break;
-                case '!upload':
-                    uploadSettings();
-                    break;
-                default:
-                    googleSearch(); // Realiza la búsqueda en Google
-            }
+            performSearch(); // Realiza la búsqueda en Google
         } else {
             e.preventDefault();
-            abrirEnlaceSeleccionado();
+            openBookmark();
         }
     } else if (e.key === 'Escape') {
         e.preventDefault();
@@ -1070,7 +1271,7 @@ document.addEventListener('keydown', (e) => {
             do {
                 selectedPos = (selectedPos + 1) % elements.length;
             } while (elements[selectedPos].classList.contains('discarded') || elements[selectedPos].classList.contains('separator'));
-            destacarSeleccionado();
+            highlightSelected();
         }
     } else if ((e.key === 'Tab') && (e.shiftKey)) {
         e.preventDefault();
@@ -1078,7 +1279,7 @@ document.addEventListener('keydown', (e) => {
             do {
                 selectedPos = (selectedPos - 1 + elements.length) % elements.length;
             } while (elements[selectedPos].classList.contains('discarded') || elements[selectedPos].classList.contains('separator'));
-            destacarSeleccionado();
+            highlightSelected();
         }
     }
 });
@@ -1130,7 +1331,7 @@ saveEditButton.addEventListener('click', () => {
 
     UnsavedChanges = true;
     actualizarVista();
-    destacarSeleccionado();
+    highlightSelected();
     closeEditDialog();
 });
 
@@ -1162,7 +1363,7 @@ function closeEditDialog() {
     editDialog.classList.add('hidden');
 }
 
-function moverElemento(index, direction) {
+function moveElement(index, direction) {
     UnsavedChanges = true;
     if (index < 0 || index >= catalogToUse.length) return;
 
@@ -1196,11 +1397,11 @@ function moverElemento(index, direction) {
 
         // Actualizar la selección
         selectedPos = targetIndex;
-        destacarSeleccionado();
+        highlightSelected();
     }
 }
 
-function eliminarElemento() {
+function removeElement() {
     UnsavedChanges = true;
     if (selectedPos === null) return;
 
@@ -1209,7 +1410,7 @@ function eliminarElemento() {
     // Actualizar la vista
     actualizarVista();
     selectedPos = null;
-    destacarSeleccionado();
+    highlightSelected();
 }
 
 function duplicateElement() {
@@ -1260,7 +1461,7 @@ function addNewElement(newAddr, newName, newIcon) {
 
     // Actualizar la selección al nuevo elemento
     selectedPos = insertPos;
-    destacarSeleccionado();
+    highlightSelected();
 
     if (newElement.addr !== 'separator') {
         openEditDialog();
