@@ -349,7 +349,8 @@ function setCurrentSearchEngine(searchEngine, markUnsaved = false) {
 }
 
 function updateSearchPromptLabel() {
-    filtroDisplay.dataset.searchLabel = 'Search ' + currentSearchEngine.name;
+    const hasCalculatorResult = Boolean(evaluateMathExpression(filterText));
+    filtroDisplay.dataset.searchLabel = hasCalculatorResult ? 'Calculator' : 'Search ' + currentSearchEngine.name;
 }
 
 //--- Functions for Filter/Search visualization
@@ -357,6 +358,7 @@ function updateSearchPromptLabel() {
 function updateFilterDisplay() {
     // Actualiza el contenido del filtro con el cursor
     filtroDisplay.innerHTML = filterText.slice(0, cursorPos) + '\u200B<span id="cursor"></span>\u200B' + filterText.slice(cursorPos);
+    updateSearchPromptLabel();
 
     isFilterBarVisible = isSearchMode || Boolean(filterText);
 
@@ -629,7 +631,9 @@ function evaluateMathExpression(expressionText) {
         return null;
     }
 
-    if (!/^[\deE+\-*/%^().\s]+$/.test(rawExpression)) {
+    const normalizedExpression = normalizeMathExpressionForLocale(rawExpression);
+
+    if (!/^[\deE+\-*/%^().\s]+$/.test(normalizedExpression)) {
         return null;
     }
 
@@ -637,7 +641,7 @@ function evaluateMathExpression(expressionText) {
         return null;
     }
 
-    const compactExpression = rawExpression.replace(/\s+/g, '');
+    const compactExpression = normalizedExpression.replace(/\s+/g, '');
     if (!compactExpression || /[+\-*/%^.]$/.test(compactExpression)) {
         return null;
     }
@@ -660,20 +664,89 @@ function hideCalculatorPreview() {
     calcPreview.classList.add('hidden');
 }
 
+function getBrowserLocale() {
+    if (typeof navigator !== 'undefined') {
+        if (Array.isArray(navigator.languages) && navigator.languages.length > 0) {
+            return navigator.languages;
+        }
+
+        if (navigator.language) {
+            return navigator.language;
+        }
+    }
+
+    return undefined;
+}
+
+function getCalculatorNumberSeparators() {
+    const parts = new Intl.NumberFormat(getBrowserLocale()).formatToParts(12345.6);
+    const groupPart = parts.find((part) => part.type === 'group');
+    const decimalPart = parts.find((part) => part.type === 'decimal');
+
+    return {
+        group: groupPart ? groupPart.value : ',',
+        decimal: decimalPart ? decimalPart.value : '.'
+    };
+}
+
+function escapeRegExp(text) {
+    return String(text).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeMathExpressionForLocale(expressionText) {
+    const separators = getCalculatorNumberSeparators();
+    let normalized = String(expressionText || '');
+
+    const decimalSeparator = separators.decimal;
+    const groupSeparator = separators.group;
+
+    if (groupSeparator && groupSeparator !== decimalSeparator) {
+        const escapedGroup = escapeRegExp(groupSeparator);
+        const groupBetweenThousands = new RegExp('(\\d)' + escapedGroup + '(?=\\d{3}(?:\\D|$))', 'g');
+        normalized = normalized.replace(groupBetweenThousands, '$1');
+    }
+
+    if (decimalSeparator && decimalSeparator !== '.') {
+        const escapedDecimal = escapeRegExp(decimalSeparator);
+        const decimalBetweenDigits = new RegExp('(\\d)' + escapedDecimal + '(?=\\d)', 'g');
+        const decimalAfterOperator = new RegExp('(^|[+\\-*/%^()\\s])' + escapedDecimal + '(?=\\d)', 'g');
+        normalized = normalized
+            .replace(decimalBetweenDigits, '$1.')
+            .replace(decimalAfterOperator, '$1.');
+    }
+
+    return normalized;
+}
+
+function formatDecimalStringForLocale(decimalString, separators) {
+    const sign = decimalString.startsWith('-') ? '-' : '';
+    const unsignedValue = sign ? decimalString.slice(1) : decimalString;
+    const parts = unsignedValue.split('.');
+    const integerPart = parts[0] || '0';
+    const fractionPart = parts[1] || '';
+    const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, separators.group);
+
+    return sign + groupedInteger + (fractionPart ? separators.decimal + fractionPart : '');
+}
+
 function formatCalculatorResult(value) {
     const decimalish = getDecimalishApi();
     if (!decimalish) {
+        const fallbackText = String(value);
         return {
-            html: String(value)
+            html: fallbackText,
+            text: fallbackText
         };
     }
 
     if (decimalish.eq(value, '0')) {
         return {
-            html: '0'
+            html: '0',
+            text: '0'
         };
     }
 
+    const separators = getCalculatorNumberSeparators();
     const absoluteValue = decimalish.abs(value);
     const hasLargeIntegerPart = decimalish.gte(absoluteValue, '1') && (decimalish.scale(absoluteValue) + 1 > 15);
     const hasTinyMagnitude = decimalish.lt(absoluteValue, '1e-10');
@@ -684,23 +757,20 @@ function formatCalculatorResult(value) {
         const mantissa = mantissaRaw
             .replace(/(\.\d*?[1-9])0+$/, '$1')
             .replace(/\.0+$/, '');
+        const localizedMantissa = formatDecimalStringForLocale(mantissa, separators);
         const exponent = String(Number(exponentRaw));
         return {
-            html: "<span class='scientific-number'><span>" + mantissa + "</span><span>&times;</span><span class='power-block'><span>10</span><span class='power-exponent'>" + exponent + '</span></span></span>'
+            html: "<span class='scientific-number'><span>" + localizedMantissa + "</span><span>&times;</span><span class='power-block'><span>10</span><span class='power-exponent'>" + exponent + '</span></span></span>',
+            text: localizedMantissa + '*10^' + exponent
         };
     }
 
     const fixedValue = decimalish.toFixed(value);
-    const sign = fixedValue.startsWith('-') ? '-' : '';
-    const unsignedValue = sign ? fixedValue.slice(1) : fixedValue;
-    const parts = unsignedValue.split('.');
-    const integerPart = parts[0] || '0';
-    const fractionPart = parts[1] || '';
-    const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    const formattedValue = sign + groupedInteger + (fractionPart ? ',' + fractionPart : '');
+    const formattedValue = formatDecimalStringForLocale(fixedValue, separators);
 
     return {
-        html: formattedValue
+        html: formattedValue,
+        text: formattedValue
     };
 }
 
@@ -719,18 +789,41 @@ function formatCalculatorEvaluationHtml(evaluation) {
         : quotientFormatted.html;
 }
 
-function getPlainTextFromHtml(htmlContent) {
-    const tempContainer = document.createElement('div');
-    tempContainer.innerHTML = htmlContent;
-    return (tempContainer.textContent || '')
-        .replace(/\s+/g, ' ')
-        .replace(/(\d)\.(?=\d{3}(?:\D|$))/g, '$1')
-        .replace(/[x×]\s*10\s*([+\-]?\d+)/gi, '*10^$1')
-        .trim();
+function formatCalculatorEvaluationText(evaluation) {
+    const formattedResult = formatCalculatorResult(evaluation.result);
+
+    if (!evaluation.divRem) {
+        return formattedResult.text;
+    }
+
+    const quotientFormatted = formatCalculatorResult(evaluation.divRem.quotient);
+    const remainderFormatted = formatCalculatorResult(evaluation.divRem.remainder);
+    const rawRemainder = String(evaluation.divRem.remainder);
+    return rawRemainder !== '0'
+        ? quotientFormatted.text + ' r:' + remainderFormatted.text
+        : quotientFormatted.text;
 }
 
-function getCalculatorCopyTextFromPreview() {
-    return getPlainTextFromHtml(calcPreview.innerHTML);
+function stripThousandsSeparatorsForCopy(text) {
+    const separators = getCalculatorNumberSeparators();
+    const groupSeparator = separators.group;
+
+    if (!groupSeparator) {
+        return text;
+    }
+
+    const escapedGroup = escapeRegExp(groupSeparator);
+    const groupBetweenDigits = new RegExp('(?<=\\d)' + escapedGroup + '(?=\\d{3}(?:\\D|$))', 'g');
+    return String(text || '').replace(groupBetweenDigits, '');
+}
+
+function getCalculatorCopyTextFromEvaluation(evaluation) {
+    if (!evaluation) {
+        return '';
+    }
+
+    const localizedText = formatCalculatorEvaluationText(evaluation);
+    return stripThousandsSeparatorsForCopy(localizedText);
 }
 
 function placeCalculatorPreview() {
@@ -1152,7 +1245,7 @@ document.addEventListener('keydown', (e) => {
             e.preventDefault();
             const evaluation = evaluateMathExpression(filterText);
             if (evaluation) {
-                const previewCopyText = getCalculatorCopyTextFromPreview();
+                const previewCopyText = getCalculatorCopyTextFromEvaluation(evaluation);
                 if (!previewCopyText) {
                     return;
                 }
