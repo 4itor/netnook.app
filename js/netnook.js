@@ -1148,7 +1148,7 @@ document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 // Deseleccionar el elemento
                 e.preventDefault();
-                closeEditDialog();
+                cancelEditDialog();
             }
             return;
         }
@@ -1429,24 +1429,7 @@ function openEditDialog(isNew = false) {
     editDialog.classList.remove('hidden');
 }
 
-saveEditButton.addEventListener('click', () => {
-    if (selectedPos === null) return;
-
-    const selectedData = catalogToUse[selectedPos];
-    if (!selectedData) return;
-
-    selectedData.name = document.getElementById('editName').value;
-    selectedData.addr = document.getElementById('editAddr').value;
-    selectedData.icon = document.getElementById('editIcon').value;
-
-    UnsavedChanges = true;
-    actualizarVista();
-    highlightSelected();
-    closeEditDialog();
-});
-
-
-cancelEditButton.addEventListener('click', () => {
+function cancelEditDialog() {
     if (editIsNew) {
         // Cancelar inserción: eliminar el elemento recién creado
         catalogToUse.splice(selectedPos, 1);
@@ -1465,7 +1448,26 @@ cancelEditButton.addEventListener('click', () => {
         highlightSelected();
     }
     closeEditDialog();
+}
+
+saveEditButton.addEventListener('click', () => {
+    if (selectedPos === null) return;
+
+    const selectedData = catalogToUse[selectedPos];
+    if (!selectedData) return;
+
+    selectedData.name = document.getElementById('editName').value;
+    selectedData.addr = document.getElementById('editAddr').value;
+    selectedData.icon = document.getElementById('editIcon').value;
+
+    UnsavedChanges = true;
+    actualizarVista();
+    highlightSelected();
+    closeEditDialog();
 });
+
+
+cancelEditButton.addEventListener('click', cancelEditDialog);
 
 // Extraer clases cuando se pega código HTML de FontAwesome
 document.getElementById('editIcon').addEventListener('paste', function(event) {
