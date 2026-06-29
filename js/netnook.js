@@ -12,6 +12,9 @@ let isHelpDialogOpen = false;
 let isFilterBarVisible = false;
 let editTarget = null;
 let UnsavedChanges = false;
+let editIsNew = false;
+let editSnapshot = null;
+let editSnapshotUnsavedChanges = false;
 let calculatorCopyFeedbackTimeout = null;
 
 // global doument elements
@@ -37,6 +40,7 @@ const cancelSearchEngineButton = document.getElementById('cancelSearchEngine');
 const contenedor = document.getElementById('icons');
 
 const SEARCH_ENGINE_NAME_KEY = 'searchEngineName';
+const DEFAULT_ICON = 'fa-solid fa-bookmark';
 const SEARCH_ENGINE_URL_KEY = 'searchEngineUrl';
 const SEARCH_QUERY_PLACEHOLDER = '%s';
 const fallbackSearchEngine = {
@@ -64,6 +68,9 @@ console.log('Bookmark list is ' + catalogToUse.length + ' items long');
 
 // Añadir los iconos al contenedor
 populateCatalog(catalogToUse);
+
+// Procesar parámetros de URL si los hay
+handleUrlParams();
 
 if (isStandalone()) {
     console.log('Standalone Mode!');
@@ -1211,22 +1218,24 @@ document.addEventListener('keydown', (e) => {
                 e.preventDefault();
                 console.log('duplicate');
                 duplicateElement();
-            } else if (e.key === 'n') {
-                // Añadir un nuevo elemento
-                e.preventDefault();
-                console.log('add-new Link');
-                addNewElement('#', 'NewLink', '');
-            } else if (e.key === 'm') {
-                // Añadir un nuevo elemento separador
-                e.preventDefault();
-                console.log('add-new Link');
-                addNewElement('separator', '', '');
             } else if (e.key === 'x') {
                 // Eliminar el elemento seleccionado
                 e.preventDefault();
                 console.log('delete');
                 removeElement(selectedPos);
             }
+        }
+
+        if (e.key === 'n') {
+            // Añadir un nuevo elemento (funciona con o sin selección)
+            e.preventDefault();
+            console.log('add-new Link');
+            addNewElement('#', 'NewLink', DEFAULT_ICON);
+        } else if (e.key === 'm') {
+            // Añadir un nuevo elemento separador (funciona con o sin selección)
+            e.preventDefault();
+            console.log('add-new Separator');
+            addNewElement('separator', '', '');
         }
         return;
     }
@@ -1398,14 +1407,18 @@ settingsIcon.addEventListener('click', () => {
     setEditMode(!isEditMode);
 });
 
-function openEditDialog() {
+function openEditDialog(isNew = false) {
     if (selectedPos === null) return;
 
     const selectedData = catalogToUse[selectedPos];
 
+    editIsNew = isNew;
+    editSnapshotUnsavedChanges = UnsavedChanges;
+    editSnapshot = { name: selectedData.name, addr: selectedData.addr, icon: selectedData.icon };
+
     document.getElementById('editName').value = selectedData.name;
     document.getElementById('editAddr').value = selectedData.addr;
-    document.getElementById('editIcon').value = selectedData.icon;
+    document.getElementById('editIcon').value = selectedData.icon || (selectedData.addr !== 'separator' ? DEFAULT_ICON : '');
 
     if (selectedData.addr === 'separator') {
         editFormAddress.classList.add('hidden');
@@ -1433,7 +1446,26 @@ saveEditButton.addEventListener('click', () => {
 });
 
 
-cancelEditButton.addEventListener('click', closeEditDialog);
+cancelEditButton.addEventListener('click', () => {
+    if (editIsNew) {
+        // Cancelar inserción: eliminar el elemento recién creado
+        catalogToUse.splice(selectedPos, 1);
+        selectedPos = null;
+        UnsavedChanges = editSnapshotUnsavedChanges;
+        actualizarVista();
+        highlightSelected();
+    } else if (editSnapshot) {
+        // Revertir cambios sobre elemento existente
+        const selectedData = catalogToUse[selectedPos];
+        selectedData.name = editSnapshot.name;
+        selectedData.addr = editSnapshot.addr;
+        selectedData.icon = editSnapshot.icon;
+        UnsavedChanges = editSnapshotUnsavedChanges;
+        actualizarVista();
+        highlightSelected();
+    }
+    closeEditDialog();
+});
 
 // Extraer clases cuando se pega código HTML de FontAwesome
 document.getElementById('editIcon').addEventListener('paste', function(event) {
@@ -1517,7 +1549,7 @@ function duplicateElement() {
     addNewElement(source.addr, copyName, source.icon);
     // Para separadores, addNewElement no abre el diálogo; forzarlo aquí
     if (source.addr === 'separator') {
-        openEditDialog();
+        openEditDialog(true);
     }
 }
 
@@ -1541,7 +1573,18 @@ function addNewElement(newAddr, newName, newIcon) {
     };
 
     // Determinar la posición en la que se insertará el nuevo elemento
-    const insertPos = (selectedPos !== null) ? selectedPos + 1 : catalogToUse.length;
+    let insertPos;
+    if (selectedPos !== null) {
+        insertPos = selectedPos + 1;
+    } else if (newAddr !== 'separator') {
+        // Sin selección: insertar tras el último Link (no Separator)
+        const lastLinkIndex = catalogToUse.reduce(
+            (last, item, i) => (item.addr !== 'separator' ? i : last), -1
+        );
+        insertPos = lastLinkIndex !== -1 ? lastLinkIndex + 1 : catalogToUse.length;
+    } else {
+        insertPos = catalogToUse.length;
+    }
 
     // Insertar el nuevo elemento en el array `catalogToUse`
     catalogToUse.splice(insertPos, 0, newElement);
@@ -1561,7 +1604,7 @@ function addNewElement(newAddr, newName, newIcon) {
     highlightSelected();
 
     if (newElement.addr !== 'separator') {
-        openEditDialog();
+        openEditDialog(true);
     }
 }
 
@@ -1574,6 +1617,44 @@ function actualizarVista() {
 
     // Actualizar la referencia global a los íconos
     elements = Array.from(contenedor.children);
+}
+
+// Procesamiento de parámetros de URL para añadir/editar marcadores externamente
+// Uso: ?url=https://ejemplo.com&name=Nombre&icon=fas%20fa-star
+function handleUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const urlParam = params.get('url');
+
+    if (!urlParam) return;
+
+    const nameParam = params.get('name') || '';
+    const iconParam = params.get('icon') || '';
+
+    // Limpiar los parámetros de la URL sin recargar la página
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+
+    // Buscar si la URL ya existe en el catálogo
+    const existingIndex = catalogToUse.findIndex(
+        item => item.addr === urlParam
+    );
+
+    setEditMode(true);
+
+    if (existingIndex !== -1) {
+        // El marcador ya existe: seleccionarlo y actualizar campos si se proporcionaron
+        selectedPos = existingIndex;
+        highlightSelected();
+        if (nameParam) catalogToUse[existingIndex].name = nameParam;
+        if (iconParam) catalogToUse[existingIndex].icon = iconParam;
+        if (nameParam || iconParam) UnsavedChanges = true;
+        openEditDialog();
+    } else {
+        // El marcador no existe: crearlo (addNewElement selecciona y abre el editor)
+        const newName = nameParam || urlParam;
+        const newIcon = iconParam || '';
+        addNewElement(urlParam, newName, newIcon);
+    }
 }
 
 // Evento beforeunload: se dispara antes de que la pestaña se cierre o se recargue
