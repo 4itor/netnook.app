@@ -10,7 +10,6 @@ let isEditDialogOpen = false;
 let isSearchEngineDialogOpen = false;
 let isHelpDialogOpen = false;
 let isFilterBarVisible = false;
-let editTarget = null;
 let UnsavedChanges = false;
 let editIsNew = false;
 let editSnapshot = null;
@@ -26,7 +25,6 @@ const helpDialog = document.getElementById('helpDialog');
 const closeHelpDialogButton = document.getElementById('closeHelpDialog');
 const settingsIcon = document.getElementById('settingsIcon');
 const editDialog = document.getElementById('editDialog');
-const editForm = document.getElementById('editForm');
 const editFormAddress = document.getElementById('editFormAddress');
 const saveEditButton = document.getElementById('saveEdit');
 const cancelEditButton = document.getElementById('cancelEdit');
@@ -42,6 +40,8 @@ const contenedor = document.getElementById('icons');
 const SEARCH_ENGINE_NAME_KEY = 'searchEngineName';
 const DEFAULT_ICON = 'fa-solid fa-bookmark';
 const SEARCH_ENGINE_URL_KEY = 'searchEngineUrl';
+const APP_STATE_KEY = 'userCatalog';
+const DATA_STAMP_KEY = 'versionStamp';
 const SEARCH_QUERY_PLACEHOLDER = '%s';
 const fallbackSearchEngine = {
     name: 'Google',
@@ -51,6 +51,8 @@ const searchEngineList = (typeof searchEnginePresets !== 'undefined' && Array.is
     ? searchEnginePresets
     : [fallbackSearchEngine];
 
+let dataStampStatus = null;
+
 // Allowed Ctrl keys
 const managedCtrlKeys = new Set(['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'v', 'V']);
 
@@ -59,10 +61,10 @@ const dominioRegex = new RegExp(
     `^(?:(?:[a-z0-9]+\\.)*[a-z0-9]+\\.[a-z]{2,63}|\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})(?::\\d{1,5})?(?:/.*)?$`, "i"
 );
 
-// Carga de catalogo desde almacenamiento local del navegador
-let catalogToUse = loadCatalogFromLocal() || initialCatalog;
-let currentSearchEngine = loadSearchEngineFromLocal() || normalizeSearchEngine(fallbackSearchEngine);
-saveSearchEngineToLocal(currentSearchEngine);
+// Carga del estado (catalogo + search engine) desde almacenamiento local del navegador
+const persistedState = loadAppStateFromLocal();
+let catalogToUse = persistedState.bookmarks || initialCatalog;
+let currentSearchEngine = persistedState.searchEngine || normalizeSearchEngine(fallbackSearchEngine);
 updateSearchPromptLabel();
 console.log('Bookmark list is ' + catalogToUse.length + ' items long');
 
@@ -321,34 +323,14 @@ function normalizeSearchEngineFallback() {
     };
 }
 
-function loadSearchEngineFromLocal() {
-    const savedName = localStorage.getItem(SEARCH_ENGINE_NAME_KEY);
-    const savedUrl = localStorage.getItem(SEARCH_ENGINE_URL_KEY);
-
-    if (!savedName || !savedUrl) {
-        return null;
-    }
-
-    return normalizeSearchEngine({
-        name: savedName,
-        url: savedUrl
-    });
-}
-
-function saveSearchEngineToLocal(searchEngine) {
-    const normalized = normalizeSearchEngine(searchEngine);
-    localStorage.setItem(SEARCH_ENGINE_NAME_KEY, normalized.name);
-    localStorage.setItem(SEARCH_ENGINE_URL_KEY, normalized.url);
-}
-
 function buildSearchUrl(queryText) {
     const encodedQuery = encodeURIComponent(queryText);
     return currentSearchEngine.url.replaceAll(SEARCH_QUERY_PLACEHOLDER, encodedQuery);
 }
 
 function setCurrentSearchEngine(searchEngine, markUnsaved = false) {
-    currentSearchEngine = normalizeSearchEngine(searchEngine);
-    saveSearchEngineToLocal(currentSearchEngine);
+    const normalized = normalizeSearchEngine(searchEngine);
+    currentSearchEngine = normalized;
     updateSearchPromptLabel();
     if (markUnsaved) {
         UnsavedChanges = true;
@@ -876,10 +858,6 @@ function showCalculatorCopyFeedback(isSuccess) {
     }, 950);
 }
 
-function UpdateCursorPos() {
-    filtroDisplay.style.setProperty('--char-count', cursorPos);
-}
-
 window.addEventListener('resize', updateCalculatorPreview);
 
 function openHelpPage() {
@@ -927,7 +905,10 @@ function setEditMode(enabled) {
         }
         selectedPos = null;
         highlightSelected();
-        saveCatalogToLocal(catalogToUse); // Guarda el catálogo en el almacenamiento local
+        const saved = saveAppStateToLocal(catalogToUse, currentSearchEngine); // Guarda el estado en el almacenamiento local
+        if (!saved) {
+            return;
+        }
         UnsavedChanges = false;
         document.documentElement.classList.remove('edit-mode'); // Desactiva la clase en <html>
         console.log('Modo edición desactivado');
@@ -979,13 +960,88 @@ function uploadSettings() {
 
 //--- Functions for Save/Load the catalog to/from LocalStorage
 
-function saveCatalogToLocal(catalog) {
-    localStorage.setItem('userCatalog', JSON.stringify(catalog));
+function loadAppStateFromLocal() {
+    dataStampStatus = localStorage.getItem(DATA_STAMP_KEY);
+
+    let bookmarks = null;
+    let searchEngine = null;
+    const savedName = localStorage.getItem(SEARCH_ENGINE_NAME_KEY);
+    const savedUrl = localStorage.getItem(SEARCH_ENGINE_URL_KEY);
+
+    if (savedName && savedUrl) {
+        searchEngine = normalizeSearchEngine({ name: savedName, url: savedUrl });
+    }
+
+    const savedState = localStorage.getItem(APP_STATE_KEY);
+    if (savedState) {
+        try {
+            const parsedState = JSON.parse(savedState);
+
+            if (Array.isArray(parsedState)) {
+                bookmarks = parsedState;
+            } else {
+                bookmarks = Array.isArray(parsedState.bookmarks) ? parsedState.bookmarks : null;
+                searchEngine = parsedState.searchEngine ? normalizeSearchEngine(parsedState.searchEngine) : searchEngine;
+            }
+        } catch {
+            // Ignore invalid userCatalog JSON.
+        }
+    }
+
+    return {
+        bookmarks,
+        searchEngine
+    };
 }
 
-function loadCatalogFromLocal() {
-    const savedCatalog = localStorage.getItem('userCatalog');
-    return savedCatalog ? JSON.parse(savedCatalog) : null;
+function saveAppStateToLocal(bookmarks, searchEngine) {
+    if (!canPersistChangesWithStamp()) {
+        return false;
+    }
+
+    const normalized = normalizeSearchEngine(searchEngine);
+    const state = {
+        bookmarks: Array.isArray(bookmarks) ? bookmarks : [],
+        searchEngine: normalized
+    };
+
+    localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+
+    // Mantener las claves del search engine por compatibilidad hacia atras.
+    localStorage.setItem(SEARCH_ENGINE_NAME_KEY, normalized.name);
+    localStorage.setItem(SEARCH_ENGINE_URL_KEY, normalized.url);
+
+    refreshDataStamp();
+    return true;
+}
+
+function generateGuid() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+
+    const randomChunk = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).slice(1);
+    return randomChunk() + randomChunk() + '-' + randomChunk() + '-' + randomChunk() + '-' + randomChunk() + '-' + randomChunk() + randomChunk() + randomChunk();
+}
+
+function refreshDataStamp() {
+    const newStamp = generateGuid();
+    localStorage.setItem(DATA_STAMP_KEY, newStamp);
+    dataStampStatus = newStamp;
+}
+
+function canPersistChangesWithStamp() {
+    const currentStamp = localStorage.getItem(DATA_STAMP_KEY);
+
+    if (!currentStamp) {
+        return true;
+    }
+
+    if (currentStamp === dataStampStatus) {
+        return true;
+    }
+
+    return window.confirm('Data has changed and overwriting may cause data loss. Do you want to overwrite?');
 }
 
 //--- Función asíncrona para manejar el pegado desde el portapapeles
