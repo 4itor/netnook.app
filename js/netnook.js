@@ -370,7 +370,8 @@ function updateFilterDisplay() {
 }
 
 function updateBackgroundOverlayVisibility() {
-    searchBackground.style.visibility = (isSearchMode || isHelpDialogOpen) ? 'visible' : 'hidden';
+    const shouldShowOverlay = isSearchMode || isHelpDialogOpen || isEditDialogOpen || isSearchEngineDialogOpen;
+    searchBackground.style.visibility = shouldShowOverlay ? 'visible' : 'hidden';
 }
 
 function enableSearchMode() {
@@ -1685,6 +1686,7 @@ function openEditDialog(isNew = false) {
     }
     isEditDialogOpen = true;
     editDialog.classList.remove('hidden');
+    updateBackgroundOverlayVisibility();
 }
 
 function cancelEditDialog() {
@@ -1769,6 +1771,7 @@ function closeEditDialog() {
     isEditDialogOpen = false;
     closeIconPicker();
     editDialog.classList.add('hidden');
+    updateBackgroundOverlayVisibility();
 }
 
 function moveElement(index, direction) {
