@@ -595,6 +595,151 @@ html.edit-mode::before {
     color: var(--theme-foreground);
 }
 
+.icon-input-row {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    gap: 8px;
+    position: relative;
+}
+
+.icon-preview-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border: 1px solid var(--theme-separator-line);
+    border-radius: 5px;
+    background-color: var(--theme-background);
+    color: var(--theme-foreground);
+}
+
+.icon-preview-box i {
+    font-size: 18pt;
+    color: var(--theme-foreground);
+}
+
+.icon-picker-trigger,
+.icon-picker-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--theme-separator-line);
+    border-radius: 5px;
+    background-color: var(--theme-background);
+    color: var(--theme-foreground);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-picker-trigger:hover,
+.icon-picker-close:hover,
+button.icon-picker-option:hover {
+    background-color: var(--theme-searchbar);
+    color: var(--theme-searchbar-label);
+    border-color: var(--theme-searchbar-label);
+}
+
+.modal-dialog .icon-picker-trigger:hover,
+.modal-dialog .icon-picker-close:hover {
+    background-color: var(--theme-searchbar) !important;
+    color: var(--theme-searchbar-label) !important;
+    border-color: var(--theme-searchbar-label) !important;
+}
+
+.icon-picker-trigger:hover i,
+.icon-picker-close:hover i,
+button.icon-picker-option:hover i,
+button.icon-picker-option:hover span {
+    color: var(--theme-searchbar-label) !important;
+}
+
+.modal-dialog .icon-picker-trigger:hover i,
+.modal-dialog .icon-picker-close:hover i {
+    color: var(--theme-searchbar-label) !important;
+}
+
+.icon-picker-dialog {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: min(100%, 480px);
+    max-height: min(320px, 60vh);
+    display: flex;
+    flex-direction: column;
+    background-color: var(--theme-dialog);
+    border: 1px solid var(--theme-separator-line);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px var(--theme-shadow-strong);
+    z-index: 1200;
+    overflow: hidden;
+}
+
+.icon-picker-dialog.hidden {
+    display: none;
+}
+
+.icon-picker-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid var(--theme-separator-line);
+}
+
+.icon-picker-header input {
+    flex: 1;
+    min-width: 0;
+}
+
+.icon-picker-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.icon-picker-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 6px;
+    min-height: 78px;
+    border: 1px solid var(--theme-separator-line);
+    border-radius: 6px;
+    background-color: var(--theme-background);
+    color: var(--theme-foreground);
+    cursor: pointer;
+    font-family: monospace;
+    line-height: 1.2;
+    text-align: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-picker-option i {
+    font-size: 18pt;
+    color: var(--theme-foreground);
+}
+
+.icon-picker-option span {
+    font-size: 9pt;
+    color: var(--theme-foreground);
+}
+
+.icon-picker-empty {
+    padding: 20px 12px;
+    color: var(--theme-dimmed);
+    font-size: 7pt;
+    text-align: center;
+}
+
 #editDialog i {
     color: var(--theme-foreground);
 }

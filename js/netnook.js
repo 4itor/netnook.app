@@ -15,6 +15,8 @@ let editIsNew = false;
 let editSnapshot = null;
 let editSnapshotUnsavedChanges = false;
 let calculatorCopyFeedbackTimeout = null;
+let iconPickerCatalog = [];
+let isIconPickerLoading = false;
 
 // global doument elements
 const searchBackground = document.getElementById('backgroundOverlay')
@@ -28,6 +30,14 @@ const editDialog = document.getElementById('editDialog');
 const editFormAddress = document.getElementById('editFormAddress');
 const saveEditButton = document.getElementById('saveEdit');
 const cancelEditButton = document.getElementById('cancelEdit');
+const editIconInput = document.getElementById('editIcon');
+const iconPreviewBox = document.getElementById('iconPreviewBox');
+const iconPreviewIcon = document.getElementById('iconPreviewIcon');
+const openIconPickerButton = document.getElementById('openIconPickerButton');
+const closeIconPickerButton = document.getElementById('closeIconPickerButton');
+const iconPickerDialog = document.getElementById('iconPickerDialog');
+const iconPickerSearch = document.getElementById('iconPickerSearch');
+const iconPickerResults = document.getElementById('iconPickerResults');
 const searchEngineMenu = document.getElementById('searchEngineMenu');
 const searchEngineDialog = document.getElementById('searchEngineDialog');
 const searchEngineOptions = document.getElementById('searchEngineOptions');
@@ -1463,6 +1473,197 @@ settingsIcon.addEventListener('click', () => {
     setEditMode(!isEditMode);
 });
 
+function getFontAwesomeFallbackCatalog() {
+    return [
+        { name: 'bookmark', label: 'Bookmark', classes: ['fa-solid fa-bookmark'] },
+        { name: 'house', label: 'Home', classes: ['fa-solid fa-house'] },
+        { name: 'star', label: 'Star', classes: ['fa-solid fa-star'] },
+        { name: 'link', label: 'Link', classes: ['fa-solid fa-link'] },
+        { name: 'plus', label: 'Plus', classes: ['fa-solid fa-plus'] },
+        { name: 'minus', label: 'Minus', classes: ['fa-solid fa-minus'] },
+        { name: 'trash', label: 'Trash', classes: ['fa-solid fa-trash'] },
+        { name: 'pen', label: 'Edit', classes: ['fa-solid fa-pen'] },
+        { name: 'magnifying-glass', label: 'Search', classes: ['fa-solid fa-magnifying-glass'] },
+        { name: 'download', label: 'Download', classes: ['fa-solid fa-download'] },
+        { name: 'upload', label: 'Upload', classes: ['fa-solid fa-upload'] },
+        { name: 'wrench', label: 'Settings', classes: ['fa-solid fa-wrench'] },
+        { name: 'circle-question', label: 'Help', classes: ['fa-solid fa-circle-question'] },
+        { name: 'xmark', label: 'Close', classes: ['fa-solid fa-xmark'] },
+        { name: 'github', label: 'GitHub', classes: ['fa-brands fa-github'] }
+    ];
+}
+
+function buildFontAwesomeClass(iconName, styleName = 'solid') {
+    return `fa-${styleName} fa-${iconName}`;
+}
+
+function normalizeIconPickerEntry(iconName, details) {
+    const styles = Array.isArray(details?.styles) && details.styles.length > 0 ? details.styles : ['solid'];
+    const classes = styles.map(style => buildFontAwesomeClass(iconName, style));
+    const searchTerms = [
+        iconName,
+        details?.label,
+        ...(Array.isArray(details?.search?.terms) ? details.search.terms : []),
+        ...(Array.isArray(details?.search) ? details.search : [])
+    ].filter(Boolean);
+
+    return {
+        name: iconName,
+        label: details?.label || iconName,
+        classes,
+        searchTerms
+    };
+}
+
+async function loadIconPickerCatalog() {
+    if (iconPickerCatalog.length > 0) {
+        renderIconPickerResults(iconPickerSearch.value);
+        return;
+    }
+
+    if (isIconPickerLoading) {
+        return;
+    }
+
+    isIconPickerLoading = true;
+    renderIconPickerResults('');
+
+    try {
+        const response = await fetch('https://cdn.jsdelivr.net/gh/FortAwesome/Font-Awesome@6.x/metadata/icons.json');
+        if (!response.ok) {
+            throw new Error(`Icon metadata request failed with ${response.status}`);
+        }
+
+        const payload = await response.json();
+        iconPickerCatalog = Object.entries(payload)
+            .filter(([, details]) => details && Array.isArray(details.styles) && details.styles.length > 0)
+            .map(([iconName, details]) => normalizeIconPickerEntry(iconName, details))
+            .sort((left, right) => left.label.localeCompare(right.label));
+    } catch (error) {
+        console.warn('Using built-in icon list for the picker.', error);
+        iconPickerCatalog = getFontAwesomeFallbackCatalog();
+    } finally {
+        isIconPickerLoading = false;
+        renderIconPickerResults(iconPickerSearch.value);
+    }
+}
+
+function inferIconPickerQuery(value = '') {
+    const tokens = String(value || '').split(/\s+/).filter(Boolean);
+    const styleAliases = new Set([
+        'fab', 'fas', 'far', 'fal', 'fat', 'fad', 'fak', 'fa',
+        'solid', 'regular', 'brands', 'light', 'thin', 'duotone', 'sharp'
+    ]);
+
+    for (let index = tokens.length - 1; index >= 0; index -= 1) {
+        const token = tokens[index];
+        if (token.startsWith('fa-')) {
+            const suffix = token.slice(3).toLowerCase();
+            if (suffix && !styleAliases.has(suffix)) {
+                return suffix;
+            }
+        }
+    }
+
+    for (let index = tokens.length - 1; index >= 0; index -= 1) {
+        const token = tokens[index].toLowerCase();
+        if (!styleAliases.has(token)) {
+            return token.replace(/^fa-/, '');
+        }
+    }
+
+    return '';
+}
+
+function updateIconPreview(value = '') {
+    const iconValue = String(value || '').trim();
+    const iconClass = iconValue || DEFAULT_ICON;
+
+    if (iconPreviewIcon) {
+        iconPreviewIcon.className = iconClass;
+    }
+
+    if (iconPreviewBox) {
+        iconPreviewBox.title = iconClass;
+    }
+}
+
+function renderIconPickerResults(query = '') {
+    const searchTerm = (query || iconPickerSearch?.value || '').trim().toLowerCase();
+    const filteredIcons = !iconPickerCatalog.length
+        ? []
+        : iconPickerCatalog.filter((entry) => {
+            if (!searchTerm) {
+                return true;
+            }
+
+            return [entry.name, entry.label, ...(entry.searchTerms || [])]
+                .filter(Boolean)
+                .some((term) => String(term).toLowerCase().includes(searchTerm));
+        }).slice(0, 80);
+
+    iconPickerResults.innerHTML = '';
+
+    if (isIconPickerLoading && !iconPickerCatalog.length) {
+        const loadingMessage = document.createElement('div');
+        loadingMessage.className = 'icon-picker-empty';
+        loadingMessage.textContent = 'Loading icons…';
+        iconPickerResults.appendChild(loadingMessage);
+        return;
+    }
+
+    if (!filteredIcons.length) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'icon-picker-empty';
+        emptyMessage.textContent = 'No icons matched that search.';
+        iconPickerResults.appendChild(emptyMessage);
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    filteredIcons.forEach((entry) => {
+        const chosenClass = entry.classes[0] || 'fa-solid fa-bookmark';
+        const optionButton = document.createElement('button');
+        optionButton.type = 'button';
+        optionButton.className = 'icon-picker-option';
+        optionButton.dataset.iconClass = chosenClass;
+        optionButton.innerHTML = `<i class="${chosenClass}"></i><span>${entry.label}</span>`;
+        optionButton.addEventListener('click', () => {
+            editIconInput.value = chosenClass;
+            updateIconPreview(chosenClass);
+            closeIconPicker();
+        });
+        fragment.appendChild(optionButton);
+    });
+
+    iconPickerResults.appendChild(fragment);
+}
+
+function openIconPicker() {
+    if (!iconPickerDialog) {
+        return;
+    }
+
+    const currentValue = editIconInput.value || '';
+    const initialQuery = inferIconPickerQuery(currentValue);
+
+    iconPickerDialog.classList.remove('hidden');
+    iconPickerSearch.value = initialQuery;
+    renderIconPickerResults(initialQuery);
+    if (!iconPickerCatalog.length) {
+        loadIconPickerCatalog();
+    }
+    iconPickerSearch.focus();
+}
+
+function closeIconPicker() {
+    if (!iconPickerDialog) {
+        return;
+    }
+
+    iconPickerDialog.classList.add('hidden');
+}
+
 function openEditDialog(isNew = false) {
     if (selectedPos === null) return;
 
@@ -1474,7 +1675,8 @@ function openEditDialog(isNew = false) {
 
     document.getElementById('editName').value = selectedData.name;
     document.getElementById('editAddr').value = selectedData.addr;
-    document.getElementById('editIcon').value = selectedData.icon || (selectedData.addr !== 'separator' ? DEFAULT_ICON : '');
+    editIconInput.value = selectedData.icon || (selectedData.addr !== 'separator' ? DEFAULT_ICON : '');
+    updateIconPreview(editIconInput.value);
 
     if (selectedData.addr === 'separator') {
         editFormAddress.classList.add('hidden');
@@ -1514,7 +1716,7 @@ saveEditButton.addEventListener('click', () => {
 
     selectedData.name = document.getElementById('editName').value;
     selectedData.addr = document.getElementById('editAddr').value;
-    selectedData.icon = document.getElementById('editIcon').value;
+    selectedData.icon = editIconInput.value;
 
     UnsavedChanges = true;
     actualizarVista();
@@ -1524,9 +1726,25 @@ saveEditButton.addEventListener('click', () => {
 
 
 cancelEditButton.addEventListener('click', cancelEditDialog);
+openIconPickerButton.addEventListener('click', openIconPicker);
+closeIconPickerButton.addEventListener('click', closeIconPicker);
+iconPickerSearch.addEventListener('input', (event) => renderIconPickerResults(event.target.value));
+editIconInput.addEventListener('input', (event) => updateIconPreview(event.target.value));
+
+document.addEventListener('click', (event) => {
+    if (iconPickerDialog.classList.contains('hidden')) {
+        return;
+    }
+
+    if (event.target.closest('#iconPickerDialog') || event.target.closest('#openIconPickerButton')) {
+        return;
+    }
+
+    closeIconPicker();
+});
 
 // Extraer clases cuando se pega código HTML de FontAwesome
-document.getElementById('editIcon').addEventListener('paste', function(event) {
+editIconInput.addEventListener('paste', function(event) {
     event.preventDefault();
 
     // Obtener el texto pegado del portapapeles
@@ -1543,10 +1761,13 @@ document.getElementById('editIcon').addEventListener('paste', function(event) {
         // Si no coincide, pegar el texto tal cual
         this.value = pastedText;
     }
+
+    updateIconPreview(this.value);
 });
 
 function closeEditDialog() {
     isEditDialogOpen = false;
+    closeIconPicker();
     editDialog.classList.add('hidden');
 }
 

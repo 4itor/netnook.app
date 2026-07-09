@@ -85,10 +85,25 @@
                 <input type="text" id="editAddr" name="addr" required>
             </div>
             <div class="form-group">
-                <label for="editIcon">Icon
-                    <a href="https://fontawesome.com/v6/search?ic=free-collection" target="_blank"><i class="fa-solid fa-magnifying-glass"></i></a>
-                </label>
-                <input type="text" id="editIcon" name="icon">
+                <label for="editIcon">Icon</label>
+                <div class="icon-input-row">
+                    <div id="iconPreviewBox" class="icon-preview-box" aria-label="Selected icon preview">
+                        <i id="iconPreviewIcon" class="fa-solid fa-bookmark"></i>
+                    </div>
+                    <input type="text" id="editIcon" name="icon">
+                    <button type="button" id="openIconPickerButton" class="icon-picker-trigger" aria-label="Open icon picker">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <div id="iconPickerDialog" class="icon-picker-dialog hidden" role="dialog" aria-label="Icon picker">
+                        <div class="icon-picker-header">
+                            <input type="text" id="iconPickerSearch" placeholder="Search icons">
+                            <button type="button" id="closeIconPickerButton" class="icon-picker-close" aria-label="Close icon picker">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        <div id="iconPickerResults" class="icon-picker-results"></div>
+                    </div>
+                </div>
             </div>
             <div class="form-buttons">
                 <button type="button" id="saveEdit">Save</button>
