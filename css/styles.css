@@ -550,9 +550,9 @@ html.edit-mode::before {
 
 .modal-dialog {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    transform: none;
     width: 90%;
     max-width: 800px;
     background-color: var(--theme-dialog);

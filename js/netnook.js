@@ -52,6 +52,7 @@ const DEFAULT_ICON = 'fa-solid fa-bookmark';
 const SEARCH_ENGINE_URL_KEY = 'searchEngineUrl';
 const APP_STATE_KEY = 'userCatalog';
 const DATA_STAMP_KEY = 'versionStamp';
+const EDIT_DIALOG_MARGIN = 50;
 const SEARCH_QUERY_PLACEHOLDER = '%s';
 const fallbackSearchEngine = {
     name: 'Google',
@@ -1665,6 +1666,32 @@ function closeIconPicker() {
     iconPickerDialog.classList.add('hidden');
 }
 
+function positionEditDialog() {
+    if (!isEditDialogOpen || selectedPos === null) {
+        return;
+    }
+
+    const selectedElement = elements[selectedPos];
+    if (!selectedElement) {
+        return;
+    }
+
+    const elementRect = selectedElement.getBoundingClientRect();
+    const dialogRect = editDialog.getBoundingClientRect();
+    const margin = EDIT_DIALOG_MARGIN;
+    const gap = 12;
+
+    let left = elementRect.left + (elementRect.width / 2) - (dialogRect.width / 2);
+    let top = elementRect.top - dialogRect.height - gap;
+
+    left = Math.min(Math.max(left, margin), Math.max(margin, window.innerWidth - dialogRect.width - margin));
+    top = Math.max(margin, top);
+
+    editDialog.style.left = `${left}px`;
+    editDialog.style.top = `${top}px`;
+    editDialog.style.transform = 'none';
+}
+
 function openEditDialog(isNew = false) {
     if (selectedPos === null) return;
 
@@ -1687,6 +1714,7 @@ function openEditDialog(isNew = false) {
     isEditDialogOpen = true;
     editDialog.classList.remove('hidden');
     updateBackgroundOverlayVisibility();
+    window.requestAnimationFrame(positionEditDialog);
 }
 
 function cancelEditDialog() {
@@ -1773,6 +1801,12 @@ function closeEditDialog() {
     editDialog.classList.add('hidden');
     updateBackgroundOverlayVisibility();
 }
+
+window.addEventListener('resize', () => {
+    if (isEditDialogOpen) {
+        positionEditDialog();
+    }
+});
 
 function moveElement(index, direction) {
     UnsavedChanges = true;
