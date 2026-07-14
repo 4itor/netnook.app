@@ -4,7 +4,7 @@ Customizable homepage designed to be used as a startup page or as a Progressive 
 
 ## What is netnook.app
 
-Netnook.app is a lightweight, privacy-first speed dial homepage.
+Netnook.app is a privacy-first customizable homepage stored locally.
 It is a static open source site that runs fully in the user's browser.
 
 ## Main features
