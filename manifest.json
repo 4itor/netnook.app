@@ -6,7 +6,7 @@
   "orientation": "any",
   "background_color": "#121212",
   "theme_color": "#121212",
-  "description": "A comfy web launcher and/or homepage",
+  "description": "A privacy-first customizable homepage stored locally in the user's browser.",
   "icons": [
     {
       "src": "img/maskable.png",
